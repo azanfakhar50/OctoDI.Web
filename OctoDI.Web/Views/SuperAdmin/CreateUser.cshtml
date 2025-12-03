@@ -1,0 +1,261 @@
+﻿@model OctoDI.Web.Models.DatabaseModels.User
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<style>
+    /* Card & Container */
+    .modern-container {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .modern-card {
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        background-color: #fff;
+        transition: all 0.3s ease;
+    }
+
+        .modern-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+    /* Form Labels */
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Input fields */
+    .form-control {
+        border-radius: 0.75rem;
+        border: 1px solid #ced4da;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-radius: 0.75rem 0 0 0.75rem;
+        border: 1px solid #ced4da;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        border-radius: 0.75rem;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+    .btn-secondary {
+        border-radius: 0.75rem;
+        padding: 0.6rem 1.2rem;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    /* Alerts */
+    .alert {
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        font-size: 0.95rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+        .page-header h2 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+    /* Info Box */
+    .alert-info {
+        border-left: 4px solid #667eea;
+        background-color: #f0f4ff;
+        color: #1a1a1a;
+    }
+
+    /* Small text */
+    small.text-muted {
+        font-size: 0.8rem;
+    }
+</style>
+
+<div class="modern-container">
+    @* <!-- Success/Error Messages -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <strong>Error:</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i>
+            <strong>Success:</strong> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    } *@
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2>
+            <i class="bi bi-person-plus-fill"></i> Add New User
+        </h2>
+        <a asp-action="DashBoard" asp-route-subscriptionId="@ViewBag.SubscriptionId" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Users
+        </a>
+    </div>
+
+    <!-- Validation Summary -->
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    <form asp-action="CreateUser" method="post">
+        <input type="hidden" asp-for="SubscriptionId" />
+        <div class="mb-3">
+            <label asp-for="SubscriptionId" class="form-label fw-bold">
+                Subscription <span class="text-danger">*</span>
+            </label>
+
+            <select asp-for="SubscriptionId" class="form-select"
+                    asp-items="@(new SelectList(ViewBag.Subscriptions, "SubscriptionId", "CompanyName", Model.SubscriptionId))">
+                <option value="">-- Select Subscription --</option>
+            </select>
+
+            <span asp-validation-for="SubscriptionId" class="text-danger small"></span>
+        </div>
+
+
+        <!-- Username & Email -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="Username" class="form-label fw-bold">
+                    Username <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input asp-for="Username" class="form-control" placeholder="Enter username" />
+                </div>
+                <span asp-validation-for="Username" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label fw-bold">
+                    Email <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                    <input asp-for="Email" class="form-control" type="email" placeholder="user@example.com" />
+                </div>
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <!-- First/Last Name -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="FirstName" class="form-label fw-bold">First Name</label>
+                <input asp-for="FirstName" class="form-control" placeholder="Enter first name" />
+                <span asp-validation-for="FirstName" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="LastName" class="form-label fw-bold">Last Name</label>
+                <input asp-for="LastName" class="form-control" placeholder="Enter last name" />
+                <span asp-validation-for="LastName" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <!-- Phone & Password -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="PhoneNumber" class="form-label fw-bold">Phone Number</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="+92-300-1234567" />
+                </div>
+                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PasswordHash" class="form-label fw-bold">
+                    Password <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input asp-for="PasswordHash" class="form-control" type="password" placeholder="Enter password" />
+                </div>
+                <span asp-validation-for="PasswordHash" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <!-- ✅ Role Dropdown -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">User Role <span class="text-danger">*</span></label>
+            <select asp-for="UserRole" class="form-select">
+                <option value="">-- Select Role --</option>
+                <option value="SubscriptionAdmin">Subscription Admin</option>
+                <option value="SubscriptionUser">Subscription User</option>
+            </select>
+            <span asp-validation-for="UserRole" class="text-danger small"></span>
+        </div>
+
+        <!-- Remarks -->
+        <div class="mb-4">
+            <label asp-for="Remarks" class="form-label fw-bold">Remarks</label>
+            <textarea asp-for="Remarks" class="form-control" rows="3" placeholder="Optional notes about this user"></textarea>
+            <span asp-validation-for="Remarks" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-action="Dashboard" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i> Create User
+            </button>
+        </div>
+    </form>
+
+
+    <div class="alert alert-info mt-3" role="alert">
+        <i class="bi bi-info-circle-fill"></i>
+        <strong>Note:</strong> User will be created with role "SubscriptionUser" and will be Active by default.
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

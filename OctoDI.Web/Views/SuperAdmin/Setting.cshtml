@@ -1,0 +1,116 @@
+﻿@model OctoDI.Web.Models.DatabaseModels.SubscriptionSetting
+@{
+    ViewData["Title"] = "Subscription Settings";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg p-4 rounded-4">
+        <h3 class="mb-4 text-dark fw-bold">
+            <i class="bi bi-gear-fill"></i> Subscription Settings
+        </h3>
+
+        <form asp-action="SaveSettings" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="SubscriptionId" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FbrBaseUrl" class="form-label fw-semibold">FBR Base URL</label>
+                    <input asp-for="FbrBaseUrl" class="form-control" placeholder="https://gw.fbr.gov.pk/imsp/v1/api/..." />
+                    <span asp-validation-for="FbrBaseUrl" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="FbrToken" class="form-label fw-semibold">FBR Token</label>
+                    <input asp-for="FbrToken" class="form-control" type="password" placeholder="Enter FBR Token" />
+                    <span asp-validation-for="FbrToken" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="SellerNTN" class="form-label fw-semibold">Seller NTN</label>
+                    <input asp-for="SellerNTN" class="form-control" placeholder="1234567-8" />
+                </div>
+
+                <div class="col-md-8">
+                    <label asp-for="SellerBusinessName" class="form-label fw-semibold">Business Name</label>
+                    <input asp-for="SellerBusinessName" class="form-control" placeholder="ABC Traders Pvt Ltd" />
+                </div>
+
+                <div class="col-md-12">
+                    <label asp-for="SellerAddress" class="form-label fw-semibold">Address</label>
+                    <input asp-for="SellerAddress" class="form-control" placeholder="Street, City, Province" />
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="SellerProvince" class="form-label fw-semibold">Province Code</label>
+                    <input asp-for="SellerProvince" class="form-control" placeholder="e.g., PB, SD, KP" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Active</label>
+                    <div class="form-check form-switch mt-1">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <label asp-for="Remarks" class="form-label fw-semibold">Remarks</label>
+                    <textarea asp-for="Remarks" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+
+            <div class="text-end mt-4">
+                <button type="submit" class="btn btn-success px-4">Save Settings</button>
+
+
+            </div>
+        </form>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success mt-3">@TempData["Success"]</div>
+        }
+    </div>
+</div>
+<style>
+    /* Buttons */
+    .btn-primary {
+        border-radius: 0.75rem;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        transition: all 0.3s;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+    .btn-outline-primary {
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #667eea;
+            color: #fff;
+            border-color: #667eea;
+        }
+
+    .btn-outline-danger {
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+    }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #fff;
+            border-color: #dc3545;
+        }
+</style>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

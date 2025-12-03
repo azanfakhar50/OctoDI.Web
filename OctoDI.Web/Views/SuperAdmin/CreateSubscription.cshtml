@@ -1,0 +1,239 @@
+﻿@model OctoDI.Web.Models.DatabaseModels.Subscription
+
+@{
+    ViewData["Title"] = "Create Subscription";
+}
+
+<style>
+    .modern-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+    }
+
+    .modern-card {
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        background-color: #fff;
+        padding: 2rem;
+        transition: all 0.3s ease;
+    }
+
+        .modern-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+    .form-control {
+        border-radius: 0.75rem;
+        border: 1.5px solid #e2e8f0;
+        padding: 0.6rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .btn-primary {
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        padding: 0.5rem 1.2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.3);
+        }
+
+    .btn-secondary {
+        border-radius: 0.75rem;
+        padding: 0.5rem 1.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .page-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 1.5rem;
+    }
+
+        .page-header i {
+            color: #667eea;
+        }
+
+    .alert {
+        border-radius: 0.75rem;
+        border: none;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+        color: white;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #51cf66, #37b24d);
+        color: white;
+    }
+
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+</style>
+
+<div class="modern-container">
+    <div class="d-flex justify-content-between align-items-center mb-4 page-header">
+        <div>
+            <i class="bi bi-plus-circle"></i>
+            <span>Create New Subscription</span>
+        </div>
+        
+    </div>
+
+    <form asp-action="CreateSubscription" method="post" class="modern-card">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="display:none;"></div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="CompanyName" class="form-label required-field"></label>
+                <input asp-for="CompanyName" class="form-control" placeholder="Enter Company Name" required />
+                <span asp-validation-for="CompanyName" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="BusinessName" class="form-label"></label>
+                <input asp-for="BusinessName" class="form-control" placeholder="Enter Business Name (Optional)" />
+                <span asp-validation-for="BusinessName" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="NtnCnic" class="form-label required-field">NTN / CNIC</label>
+                <input asp-for="NtnCnic" class="form-control" placeholder="Enter NTN or CNIC" required />
+                <span asp-validation-for="NtnCnic" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Province" class="form-label"></label>
+                <select asp-for="Province" class="form-control">
+                    <option value="">-- Select Province --</option>
+                    <option value="Punjab">Punjab</option>
+                    <option value="Sindh">Sindh</option>
+                    <option value="KPK">KPK</option>
+                    <option value="Balochistan">Balochistan</option>
+                    <option value="Islamabad">Islamabad Capital Territory</option>
+                    <option value="Gilgit-Baltistan">Gilgit-Baltistan</option>
+                    <option value="AJK">Azad Jammu & Kashmir</option>
+                </select>
+                <span asp-validation-for="Province" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label"></label>
+            <textarea asp-for="Address" class="form-control" rows="2" placeholder="Enter Full Address (Optional)"></textarea>
+            <span asp-validation-for="Address" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="SubscriptionType" class="form-label required-field">Subscription Type</label>
+            <select asp-for="SubscriptionType" class="form-control" required>
+                <option value="">-- Select Type --</option>
+                <option value="Goods">Goods</option>
+                <option value="Services">Services</option>
+            </select>
+            <span asp-validation-for="SubscriptionType" class="text-danger small"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label>Enable Two-Step Verification?</label>
+            <select asp-for="IsTwoFactorEnabled" class="form-control">
+                <option value="false">Disabled</option>
+                <option value="true">Enabled</option>
+            </select>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label asp-for="ContactPerson" class="form-label"></label>
+                <input asp-for="ContactPerson" class="form-control" placeholder="Contact Person Name" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="ContactEmail" class="form-label"></label>
+                <input asp-for="ContactEmail" class="form-control" type="email" placeholder="Email Address" />
+                <span asp-validation-for="ContactEmail" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="ContactPhone" class="form-label"></label>
+                <input asp-for="ContactPhone" class="form-control" placeholder="Phone Number" />
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="SubscriptionStartDate" class="form-label required-field"></label>
+                <input asp-for="SubscriptionStartDate" class="form-control" type="datetime-local" required />
+                <span asp-validation-for="SubscriptionStartDate" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="SubscriptionEndDate" class="form-label required-field"></label>
+                <input asp-for="SubscriptionEndDate" class="form-control" type="datetime-local" required />
+                <span asp-validation-for="SubscriptionEndDate" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="MaxUsers" class="form-label required-field"></label>
+            <input asp-for="MaxUsers" class="form-control" type="number" min="1" value="1" required />
+            <span asp-validation-for="MaxUsers" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a asp-action="Dashboard" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i> Create Subscription
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+
+        // Date validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            var startDate = new Date(document.querySelector('input[name="SubscriptionStartDate"]').value);
+            var endDate = new Date(document.querySelector('input[name="SubscriptionEndDate"]').value);
+
+            if (endDate <= startDate) {
+                e.preventDefault();
+                alert('End Date must be after Start Date!');
+                return false;
+            }
+        });
+    </script>
+}

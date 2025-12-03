@@ -1,0 +1,668 @@
+﻿@model IEnumerable<OctoDI.Web.Models.DatabaseModels.Subscription>
+
+@{
+    ViewData["Title"] = "All Subscriptions";
+    var pageNumber = ViewBag.PageNumber ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
+    var pageSize = ViewBag.PageSize ?? 10;
+
+    // Get query parameters safely
+    var fbrId = Context.Request.Query["fbrId"].ToString();
+    var companyName = Context.Request.Query["companyName"].ToString();
+    var startDate = Context.Request.Query["startDate"].ToString();
+    var endDate = Context.Request.Query["endDate"].ToString();
+    var status = Context.Request.Query["status"].ToString();
+}
+
+<style>
+    :root {
+        --primary-color: #6366f1;
+        --primary-hover: #4f46e5;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --warning-color: #f59e0b;
+        --secondary-color: #6b7280;
+        --bg-light: #f9fafb;
+        --border-color: #e5e7eb;
+        --text-dark: #1f2937;
+        --text-muted: #6b7280;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* BODY */
+    body {
+        background: linear-gradient(135deg, #f9fafb 0%, #f9fafb 100%);
+        min-height: 100vh;
+        padding: 1rem 0;
+    }
+
+    /* MAIN CONTAINER - FULL WIDTH */
+    .subscriptions-container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 1rem; /* smaller side margin */
+    }
+
+    /* PAGE HEADER */
+    .page-header {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: var(--text-dark);
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .header-icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.4rem;
+    }
+
+    .page-link {
+        border: none !important;
+        background: transparent;
+        padding: 0.4rem 0.65rem;
+        font-size: 0.85rem;
+        border-radius: 0.5rem;
+        transition: 0.2s ease;
+    }
+
+    .page-item:not(.active) .page-link:hover {
+        background: var(--bg-light);
+    }
+
+    /* ADD BUTTON */
+    .btn-add-subscription {
+        background: linear-gradient(135deg, var(--success-color), #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.65rem 1.25rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-md);
+        text-decoration: none;
+    }
+
+        .btn-add-subscription:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+            color: white;
+        }
+
+    /* FILTER CARD */
+    .filter-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.25rem 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-lg);
+        width: 100%;
+    }
+
+    .filter-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
+        align-items: end;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .form-control {
+        border: 2px solid var(--border-color);
+        border-radius: 0.5rem;
+        padding: 0.55rem 0.75rem;
+        transition: all 0.3s ease;
+        font-size: 0.85rem;
+        width: 100%;
+    }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+
+    /* FILTER BUTTONS */
+    .btn-filter, .btn-reset {
+        padding: 0.55rem 1.2rem;
+        font-size: 0.85rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        width: 100%;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .btn-outline-secondary {
+        border-radius: 0.75rem;
+        padding: 0.5rem 1.2rem;
+        transition: all 0.3s ease;
+        margin-left: 380px;
+    }
+    .btn-filter {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+    }
+
+        .btn-filter:hover {
+            background: var(--primary-hover);
+        }
+
+    .btn-reset {
+        background: var(--secondary-color);
+        color: white;
+        text-decoration: none;
+        border: none;
+    }
+
+        .btn-reset:hover {
+            background: #4b5563;
+        }
+
+    /* TABLE CARD */
+    .table-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1rem;
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
+
+    .table-responsive {
+        overflow: visible;
+    }
+
+    /* MODERN TABLE */
+    .modern-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: auto;
+    }
+
+        .modern-table thead th {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            font-weight: 600;
+            text-align: center;
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .modern-table tbody td {
+            padding: -0.25rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-dark);
+            font-size: 0.85rem;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .modern-table tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+    /* STATUS BADGES */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.65rem;
+        border-radius: 9999px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+        .status-badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.inactive {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .status-badge.blocked {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+    /* ACTION BUTTONS */
+    .action-buttons {
+        display: flex;
+        gap: 0.35rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.8rem;
+        background: transparent;
+    }
+
+        .action-btn.edit {
+            color: var(--primary-color);
+            background: rgba(99,102,241,0.1);
+        }
+
+            .action-btn.edit:hover {
+                background: rgba(99,102,241,0.2);
+                transform: scale(1.1);
+            }
+
+        .action-btn.delete {
+            color: var(--danger-color);
+            background: rgba(239,68,68,0.1);
+        }
+
+            .action-btn.delete:hover {
+                background: rgba(239,68,68,0.2);
+                transform: scale(1.1);
+            }
+
+        .action-btn.block {
+            color: #fff;
+            background: linear-gradient(135deg,#f59e0b,#d97706);
+        }
+
+        .action-btn.unblock {
+            color: #fff;
+            background: linear-gradient(135deg,var(--success-color),#059669);
+        }
+
+    /* PAGINATION */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+
+    .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0.25rem;
+        margin: 0;
+        gap: 0.25rem;
+        border-radius: 0.75rem;
+        box-shadow: var(--shadow-md);
+        flex-wrap: wrap;
+        justify-content: center;
+        background: white;
+    }
+
+    .page-item a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 35px;
+        height: 35px;
+        border-radius: 0.5rem;
+    }
+
+    .page-item.active a {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .page-item.disabled a {
+        opacity: 0.5;
+    }
+
+    /* EMPTY / LOADING STATES */
+    .empty-state, .table-loading {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-muted);
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+    /* RESPONSIVE */
+    @@media (max-width: 1024px) {
+        .filter-form
+
+    {
+        grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+    }
+
+    .modern-table th, .modern-table td {
+        font-size: 0.75rem;
+        padding: 0.6rem;
+    }
+
+    .action-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 0.7rem;
+    }
+
+    .page-item a {
+        min-width: 30px;
+        height: 30px;
+        font-size: 0.75rem;
+    }
+
+    }
+    @@media (max-width: 768px) {
+        .page-header
+
+    {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .header-title {
+        justify-content: center;
+        font-size: 1.4rem;
+    }
+
+    .btn-add-subscription {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .filter-form {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .filter-card, .table-card {
+        padding: 0.8rem;
+    }
+
+    }
+    @@media (max-width: 480px) {
+        .header-title
+
+    {
+        font-size: 1.2rem;
+    }
+
+    .header-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
+
+    .modern-table th, .modern-table td {
+        font-size: 0.7rem;
+        padding: 0.4rem 0.25rem;
+    }
+
+    .status-badge {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .action-btn {
+        width: 22px;
+        height: 22px;
+        font-size: 0.65rem;
+    }
+
+    }
+</style>
+
+
+<div class="subscriptions-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="header-title">
+            <div class="header-icon">
+                <i class="bi bi-journal-text"></i>
+            </div>
+            <span>Subscriptions Management</span>
+        </h1>
+        
+        <a asp-action="CreateSubscription" class="btn-add-subscription">
+            <i class="bi bi-plus-circle-fill"></i>
+            Add New Subscription
+        </a>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-card">
+        <div class="filter-title">
+            <i class="bi bi-funnel-fill"></i>
+            Filter Subscriptions
+        </div>
+        <form method="get" asp-action="Index" class="filter-form">
+            <div class="form-group">
+                <label class="form-label">FBR ID</label>
+                <input type="text" name="fbrId" class="form-control" placeholder="Search FBR ID..." value="@fbrId" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Company Name</label>
+                <input type="text" name="companyName" class="form-control" placeholder="Search company..." value="@companyName" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Start Date</label>
+                <input type="date" name="startDate" class="form-control" value="@startDate" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">End Date</label>
+                <input type="date" name="endDate" class="form-control" value="@endDate" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All Status</option>
+                    <option value="active" selected="@(status == "active")">Active</option>
+                    <option value="inactive" selected="@(status == "inactive")">Inactive</option>
+                    <option value="blocked" selected="@(status == "blocked")">Blocked</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn-filter">
+                    <i class="bi bi-search"></i> Filter
+                </button>
+            </div>
+            <div class="form-group">
+                <a asp-action="Index" class="btn-reset">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table Section - No Scroll -->
+    <div class="table-card">
+        <div class="table-responsive">
+            @if (Model != null && Model.Any())
+            {
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>FBR ID</th>
+                            <th>Company Name</th>
+                            <th>CNIC/NTN</th>
+                            <th>Province</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Max Users</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><strong>@item.FbrSubscriptionId</strong></td>
+                                <td>@item.CompanyName</td>
+                                <td>@item.NtnCnic</td>
+                                <td>@item.Province</td>
+                                <td>@item.SubscriptionStartDate?.ToString("MMM dd, yyyy")</td>
+                                <td>@item.SubscriptionEndDate?.ToString("MMM dd, yyyy")</td>
+                                <td>@item.MaxUsers</td>
+                                <td>
+                                    @if (item.IsBlocked)
+                                    {
+                                        <span class="status-badge blocked">
+                                            <span class="status-dot"></span>
+                                            Blocked
+                                        </span>
+                                    }
+                                    else if (!item.IsActive)
+                                    {
+                                        <span class="status-badge inactive">
+                                            <span class="status-dot"></span>
+                                            Inactive
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge active">
+                                            <span class="status-dot"></span>
+                                            Active
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a asp-action="Edit" asp-route-id="@item.SubscriptionId" class="action-btn edit" title="Edit Subscription">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </a>
+
+                                        <a asp-action="Delete" asp-route-id="@item.SubscriptionId" class="action-btn delete" title="Delete Subscription">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+
+                                        <form asp-action="ToggleStatus" method="post" style="display:inline; margin: 0;">
+                                            <input type="hidden" name="id" value="@item.SubscriptionId" />
+                                            @if (item.IsBlocked)
+                                            {
+                                                <button type="submit" class="action-btn unblock" title="Unblock Subscription">
+                                                    <i class="bi bi-unlock-fill"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit" class="action-btn block" title="Block Subscription">
+                                                    <i class="bi bi-lock-fill"></i>
+                                                </button>
+                                            }
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h4>No Subscriptions Found</h4>
+                    <p>Start by creating a new subscription</p>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages > 1)
+        {
+            <div class="pagination-container">
+                <nav>
+                    <ul class="pagination">
+                        <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
+                            <a class="page-link" href="?page=@(pageNumber - 1)&pageSize=@pageSize&fbrId=@fbrId&companyName=@companyName&startDate=@startDate&endDate=@endDate&status=@status">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        @{
+                            int maxPagesToShow = 5;
+                            int startPage = Math.Max(1, pageNumber - (maxPagesToShow / 2));
+                            int endPage = Math.Min(totalPages, startPage + maxPagesToShow - 1);
+                            if ((endPage - startPage) < (maxPagesToShow - 1))
+                            {
+                                startPage = Math.Max(1, endPage - maxPagesToShow + 1);
+                            }
+                        }
+                        @for (int i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(i == pageNumber ? "active" : "")">
+                                <a class="page-link" href="?page=@i&pageSize=@pageSize&fbrId=@fbrId&companyName=@companyName&startDate=@startDate&endDate=@endDate&status=@status">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
+                            <a class="page-link" href="?page=@(pageNumber + 1)&pageSize=@pageSize&fbrId=@fbrId&companyName=@companyName&startDate=@startDate&endDate=@endDate&status=@status">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>

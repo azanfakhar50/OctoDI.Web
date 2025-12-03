@@ -1,0 +1,201 @@
+﻿@* @model OctoDI.Web.Models.DatabaseModels.Buyer
+@{
+    ViewData["Title"] = "Buyer Details";
+    var recentInvoices = ViewBag.RecentInvoices as List<OctoDI.Web.Models.DatabaseModels.Invoice>;
+}
+
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary mb-0">
+            <i class="bi bi-building"></i> Buyer Details
+        </h2>
+        <div class="btn-group">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.BuyerId" class="btn btn-outline-primary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Buyer Information Card -->
+        <div class="col-md-6">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Buyer Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tr>
+                            <td class="fw-bold" style="width: 40%;">Business Name:</td>
+                            <td><strong class="text-primary">@Model.BuyerBusinessName</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">NTN:</td>
+                            <td><span class="badge bg-info fs-6">@Model.BuyerNTN</span></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Province:</td>
+                            <td>
+                                <i class="bi bi-geo-alt text-primary"></i> @Model.BuyerProvince
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Registration Type:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.BuyerRegistrationType))
+                                {
+                                    <span class="badge bg-secondary">@Model.BuyerRegistrationType</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not specified</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Address:</td>
+                            <td>@Model.BuyerAddress</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> System Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0 small">
+                        <tr>
+                            <td class="fw-bold" style="width: 40%;">Created By:</td>
+                            <td>@Model.CreatedBy</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Created Date:</td>
+                            <td>@Model.CreatedDate.ToString("MMMM dd, yyyy hh:mm tt")</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Buyer ID:</td>
+                            <td><code>@Model.BuyerId</code></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Invoices Card -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-receipt"></i> Recent Invoices</h5>
+                    <span class="badge bg-light text-dark">@(recentInvoices?.Count ?? 0) invoices</span>
+                </div>
+                <div class="card-body">
+                    @if (recentInvoices != null && recentInvoices.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var invoice in recentInvoices)
+                            {
+                                <a href="@Url.Action("Details", "Invoice", new { id = invoice.InvoiceId })"
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                <strong class="text-primary">@invoice.InvoiceRefNo</strong>
+                                            </h6>
+                                            <p class="mb-1 small text-muted">
+                                                <i class="bi bi-calendar3"></i> @invoice.InvoiceDate.ToString("MMM dd, yyyy")
+                                            </p>
+                                        </div>
+                                        <div class="text-end">
+                                            @switch (invoice.Status)
+                                            {
+                                                case "Paid":
+                                                    <span class="badge bg-success">Paid</span>
+                                                    break;
+                                                case "Pending":
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                    break;
+                                                case "Cancelled":
+                                                    <span class="badge bg-danger">Cancelled</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary">@invoice.Status</span>
+                                                    break;
+                                            }
+                                        </div>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="@Url.Action("Index", "Invoice", new { subscriptionId = 1, search = Model.BuyerBusinessName })"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View All Invoices
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox display-4 text-muted"></i>
+                            <p class="text-muted mt-2">No invoices found for this buyer</p>
+                            <a href="@Url.Action("Create", "Invoice", new { subscriptionId = 1, buyerId = Model.BuyerId })"
+                               class="btn btn-sm btn-primary mt-2">
+                                <i class="bi bi-plus-circle"></i> Create Invoice
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card shadow-sm mt-3">
+        <div class="card-body">
+            <h5 class="mb-3"><i class="bi bi-lightning"></i> Quick Actions</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="@Url.Action("Create", "Invoice", new { subscriptionId = 1, buyerId = Model.BuyerId })"
+                       class="btn btn-success w-100">
+                        <i class="bi bi-file-earmark-plus"></i> Create New Invoice
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a asp-action="Edit" asp-route-id="@Model.BuyerId" class="btn btn-primary w-100">
+                        <i class="bi bi-pencil"></i> Edit Buyer Details
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-danger w-100"
+                            onclick="confirmDelete(@Model.BuyerId, '@Model.BuyerBusinessName')">
+                        <i class="bi bi-trash"></i> Delete Buyer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Form -->
+<form id="deleteForm" method="post" asp-action="Delete" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="deleteBuyerId" />
+</form>
+
+@section Scripts {
+    <script>
+        function confirmDelete(buyerId, businessName) {
+            if (confirm(`Are you sure you want to delete buyer "${businessName}"?\n\nNote: Buyers with existing invoices cannot be deleted.\n\nThis action cannot be undone!`)) {
+                document.getElementById('deleteBuyerId').value = buyerId;
+                document.getElementById('deleteForm').submit();
+            }
+        }
+    </script>
+} *@

@@ -1,0 +1,83 @@
+﻿@{
+    ViewData["Title"] = "Import Global Sale Rates";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg rounded-4 p-4">
+            <h4 class="mb-4">
+                <i class="bi bi-file-earmark-excel"></i> Import Global Sale Rates from Excel
+            </h4>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="alert alert-info">
+                <h6><i class="bi bi-info-circle"></i> Instructions:</h6>
+                <ol class="mb-0">
+                    <li>Download the Excel template below</li>
+                    <li>
+                        Fill in the required data:
+                        <ul>
+                            <li><strong>Product Description</strong> (Required)</li>
+                            <li><strong>HS Code</strong> (Optional)</li>
+                            <li><strong>Unit Name</strong> (Must exist in system)</li>
+                            <li><strong>Category Name</strong> (Must exist in system)</li>
+                            <li><strong>Rate</strong> (Numeric value)</li>
+                            <li><strong>Tax Rate</strong> (Numeric value)</li>
+                        </ul>
+                    </li>
+                    <li>Upload the completed file using the form below</li>
+                </ol>
+            </div>
+
+            <div class="text-center mb-4">
+                <a asp-action="DownloadTemplate" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-download"></i> Download Excel Template
+                </a>
+            </div>
+
+            <hr />
+
+            <form asp-action="Import" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        <i class="bi bi-file-earmark-arrow-up"></i> Select Excel File
+                    </label>
+                    <input type="file" name="file" class="form-control" accept=".xlsx,.xls" required />
+                    <small class="text-muted">Accepted formats: .xlsx, .xls</small>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-upload"></i> Upload and Import
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // File validation
+        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const fileSize = file.size / 1024 / 1024; // in MB
+                if (fileSize > 10) {
+                    alert('File size must be less than 10MB');
+                    e.target.value = '';
+                }
+            }
+        });
+    </script>
+}

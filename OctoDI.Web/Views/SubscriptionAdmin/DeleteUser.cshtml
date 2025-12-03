@@ -1,0 +1,185 @@
+﻿@* @model OctoDI.Web.Models.DatabaseModels.User
+@{
+    ViewData["Title"] = "Delete User";
+    var subscriptionId = ViewBag.SubscriptionId;
+}
+
+<style>
+    .modern-container {
+        max-width: 600px;
+        margin: 2rem auto;
+    }
+
+    .modern-card {
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        background-color: #fff;
+        text-align: center;
+    }
+
+    .warning-icon {
+        font-size: 4rem;
+        color: #dc3545;
+        margin-bottom: 1rem;
+    }
+
+    .user-details {
+        background-color: #f8f9fa;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        text-align: left;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding: 0.25rem 0;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .detail-value {
+        color: #212529;
+    }
+
+    .btn-danger {
+        border-radius: 0.75rem;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .btn-outline-secondary {
+        border-radius: 0.75rem;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+    }
+</style>
+
+<div class="modern-container">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-danger mb-0">
+            <i class="bi bi-exclamation-triangle"></i> Delete User
+        </h2>
+        <a asp-action="Users" asp-route-subscriptionId="@subscriptionId" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Users
+        </a>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Delete Confirmation Card -->
+    <div class="modern-card">
+        <div class="warning-icon">
+            <i class="bi bi-person-x-fill"></i>
+        </div>
+
+        <h3 class="text-danger fw-bold mb-3">Confirm User Deletion</h3>
+
+        <p class="text-muted mb-4">
+            You are about to permanently delete this user. This action cannot be undone.
+        </p>
+
+        <!-- User Details -->
+        <div class="user-details">
+            <div class="detail-item">
+                <span class="detail-label">Username:</span>
+                <span class="detail-value">@Model.Username</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value">@Model.Email</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Full Name:</span>
+                <span class="detail-value">
+                    @if (!string.IsNullOrEmpty(Model.FirstName) || !string.IsNullOrEmpty(Model.LastName))
+                    {
+                        @($"{Model.FirstName} {Model.LastName}")
+                    }
+                    else
+                    {
+                        <span class="text-muted">Not specified</span>
+                    }
+                </span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Role:</span>
+                <span class="detail-value">
+                    <span class="badge bg-info">@Model.UserRole</span>
+                </span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Status:</span>
+                <span class="detail-value">
+                    <span class="badge @(Model.IsActive ? "bg-success" : "bg-danger")">
+                        @(Model.IsActive ? "Active" : "Inactive")
+                    </span>
+                </span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Created Date:</span>
+                <span class="detail-value">@Model.CreatedDate.ToString("MMMM dd, yyyy")</span>
+            </div>
+        </div>
+
+        <!-- Warning Message -->
+        <div class="alert alert-warning" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <strong>Warning:</strong> This action will permanently remove the user from the system.
+            Any data associated with this user might be affected.
+        </div>
+
+        <!-- Delete Form -->
+        <form asp-action="DeleteUser" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.UserId" />
+            <input type="hidden" name="subscriptionId" value="@subscriptionId" />
+
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <a asp-action="Users" asp-route-subscriptionId="@subscriptionId" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-danger btn-lg" onclick="return confirm('Are you absolutely sure? This cannot be undone!')">
+                    <i class="bi bi-trash-fill"></i> Delete User Permanently
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="alert alert-info mt-3" role="alert">
+        <i class="bi bi-info-circle-fill"></i>
+        <strong>Note:</strong>
+        <ul class="mb-0 mt-2">
+            <li>Deleted users cannot be recovered</li>
+            <li>Make sure this user is not currently working on important tasks</li>
+            <li>Consider deactivating the user instead of deleting if you might need the account later</li>
+        </ul>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Double confirmation for extra safety
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (!confirm('⚠️ FINAL WARNING: This will permanently delete the user. Are you absolutely sure?')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+} *@

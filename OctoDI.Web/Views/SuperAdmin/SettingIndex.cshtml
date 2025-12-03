@@ -1,0 +1,234 @@
+﻿@model IEnumerable<OctoDI.Web.Models.DatabaseModels.SubscriptionSetting>
+@{
+    ViewData["Title"] = "Subscription Settings";
+    int pageNumber = ViewBag.PageNumber ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    string searchName = ViewBag.SearchName ?? "";
+    string searchStatus = ViewBag.SearchStatus ?? "";
+}
+
+<div class="container mt-5">
+
+    <div class="col mb-3">
+        <h2 class="fw-bold text-dark">
+            <i class="bi bi-speedometer2"></i> Subscription Settings
+            <a asp-action="DashBoard" asp-route-subscriptionId="@ViewBag.SubscriptionId" class="btn btn-outline-secondary ms-3">
+                <i class="bi bi-arrow-left"></i> Back to Users
+            </a>
+        </h2>
+    </div>
+
+    <div class="card shadow-sm rounded-4">
+        <div class="card-body">
+
+            <!-- 🔍 Filter Form -->
+            <form class="row g-3 mb-3" method="get" asp-action="SettingIndex">
+                <div class="col-md-5">
+                    <input type="text" name="searchName" class="form-control" placeholder="Search by Subscription Name" value="@searchName" />
+                </div>
+                <div class="col-md-3">
+                    <select name="searchStatus" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="active" selected="@("active" == searchStatus)">Active</option>
+                        <option value="inactive" selected="@("inactive" == searchStatus)">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn w-100 custom-gradient-btn">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <a asp-action="SettingIndex" class="btn btn-outline-secondary w-100"><i class="bi bi-x-circle"></i> Reset</a>
+                </div>
+            </form>
+
+            <!-- 🧾 Settings Table -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Subscription ID</th>
+                            <th>Subscription</th>
+                            <th>Seller Business Name</th>
+                            <th>Seller NTN</th>
+                            <th>Seller Address</th>
+                            <th>Active</th>
+                            <th style="width:12%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            int counter = (pageNumber - 1) * (ViewBag.PageSize ?? 10) + 1;
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@counter</td>
+                                    <td>@item.SubscriptionId</td>
+                                    <td>@item.Subscription?.CompanyName</td>
+                                    <td>@item.SellerBusinessName</td>
+                                    <td>@item.SellerNTN</td>
+                                    <td>@item.SellerAddress</td>
+                                    <td>
+                                        @if (item.IsActive)
+                                        {
+                                            <span class="badge bg-success">Yes</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">No</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger btn-delete"
+                                                data-subscriptionid="@item.SubscriptionId"
+                                                data-ntn="@item.SellerNTN"
+                                                data-address="@item.SellerAddress"
+                                                data-url="@Url.Action("DeleteBySubscriptionId", "SuperAdmin", new { subscriptionId = item.SubscriptionId })">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                                counter++;
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-3">No settings found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 📄 Pagination -->
+            @if (totalPages > 1)
+            {
+                <nav class="mt-3">
+                    <ul class="pagination justify-content-center mb-0">
+                        <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
+                            <a class="page-link" asp-action="SettingIndex" asp-route-page="@(pageNumber - 1)" asp-route-searchName="@searchName" asp-route-searchStatus="@searchStatus">Previous</a>
+                        </li>
+
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == pageNumber ? "active" : "")">
+                                <a class="page-link" asp-action="SettingIndex" asp-route-page="@i" asp-route-searchName="@searchName" asp-route-searchStatus="@searchStatus">@i</a>
+                            </li>
+                        }
+
+                        <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
+                            <a class="page-link" asp-action="SettingIndex" asp-route-page="@(pageNumber + 1)" asp-route-searchName="@searchName" asp-route-searchStatus="@searchStatus">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- 🎨 Styling -->
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f1f5f9;
+        transition: 0.2s;
+    }
+
+    .btn-outline-secondary {
+        float: right;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+
+    .pagination .page-link {
+        color: #0d6efd;
+        border-radius: 0.35rem;
+    }
+
+    .btn-outline-danger:hover {
+        color: #fff;
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    
+    .custom-gradient-btn {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: #fff !important;
+        font-weight: 500;
+    }
+
+    .custom-gradient-btn:hover {
+        opacity: 0.9;
+        color: #fff !important;
+    }
+
+</style>
+
+<!-- 💣 SweetAlert Delete -->
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            $(document).on("click", ".btn-delete", function (e) {
+                e.preventDefault();
+                const btn = $(this);
+
+                const subscriptionId = btn.data("subscriptionid");
+                const sellerNtn = btn.data("ntn");
+                const sellerAddress = btn.data("address");
+                const deleteUrl = btn.data("url");
+
+                Swal.fire({
+                    title: "Delete Subscription Setting?",
+                    html: `
+                        <div class='text-start'>
+                            <b>Subscription ID:</b> ${subscriptionId}<br>
+                            <b>Seller NTN:</b> ${sellerNtn || 'N/A'}<br>
+                            <b>Seller Address:</b> ${sellerAddress || 'N/A'}<br><br>
+                            This action cannot be undone.
+                        </div>
+                    `,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#dc3545",
+                    cancelButtonColor: "#6c757d",
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: deleteUrl,
+                            type: "POST",
+                            success: function () {
+                                Swal.fire({
+                                    title: "Deleted!",
+                                    text: "Subscription setting deleted successfully.",
+                                    icon: "success",
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                                setTimeout(() => location.reload(), 2000);
+                            },
+                            error: function (xhr) {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: xhr.responseText || "Failed to delete subscription setting.",
+                                    icon: "error"
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

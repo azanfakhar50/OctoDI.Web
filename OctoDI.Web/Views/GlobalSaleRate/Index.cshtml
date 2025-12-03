@@ -1,0 +1,59 @@
+﻿@model IEnumerable<OctoDI.Web.Models.DatabaseModels.Product>
+@{
+    ViewData["Title"] = "Global Sale Rates";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h3><i class="bi bi-globe"></i> Global Sale Rates</h3>
+    
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Add New Rate
+    </a>
+</div>
+
+
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Product Description</th>
+                    <th>HS Code</th>
+                    <th>Unit</th>
+                    <th>Category</th>
+                    <th>Rate</th>
+                    <th>Tax Rate</th>
+                    <th>Created By</th>
+                    <th>Created Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ProductDescription</td>
+                        <td>@(item.HSCode ?? "N/A")</td>
+                        <td>@item.Unit?.Name</td>
+                        <td>@item.ServiceCategory?.Name</td>
+                        <td>@item.Rate.ToString("0.00")</td>
+                        <td>@item.TaxRate.ToString("0.00")%</td>
+                        <td>@item.CreatedBy</td>
+                        <td>@item.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.ProductId"
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Are you sure you want to delete this rate?');">
+                                <i class="bi bi-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,139 @@
+﻿@* @model OctoDI.Web.Models.DatabaseModels.Buyer
+@{
+    ViewData["Title"] = "Add New Buyer";
+}
+
+<div class="container mt-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="fw-bold text-primary mb-0">
+            <i class="bi bi-building"></i> Add New Buyer
+        </h2>
+        <a asp-action="Index" class="btn btn-outline-primary d-flex align-items-center gap-1">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+
+    <!-- Form Card -->
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-5">
+            <form asp-action="Create" method="post" novalidate>
+                <!-- Row 1: Business Name & NTN -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-8">
+                        <label asp-for="BuyerBusinessName" class="form-label fw-semibold">
+                            Business Name <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-primary text-white">
+                                <i class="bi bi-building"></i>
+                            </span>
+                            <input asp-for="BuyerBusinessName" class="form-control rounded-end"
+                                   placeholder="Enter business name" required />
+                        </div>
+                        <span asp-validation-for="BuyerBusinessName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="BuyerNTN" class="form-label fw-semibold">
+                            NTN <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-primary text-white">
+                                <i class="bi bi-hash"></i>
+                            </span>
+                            <input asp-for="BuyerNTN" class="form-control rounded-end"
+                                   placeholder="e.g., 1234567-8" required />
+                        </div>
+                        <span asp-validation-for="BuyerNTN" class="text-danger small"></span>
+                        <small class="text-muted">National Tax Number</small>
+                    </div>
+                </div>
+
+                <!-- Row 2: Province & Registration Type -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="BuyerProvince" class="form-label fw-semibold">
+                            Province <span class="text-danger">*</span>
+                        </label>
+                        <select asp-for="BuyerProvince" class="form-select form-select-lg" required>
+                            <option value="">-- Select Province --</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Sindh">Sindh</option>
+                            <option value="Khyber Pakhtunkhwa">Khyber Pakhtunkhwa</option>
+                            <option value="Balochistan">Balochistan</option>
+                            <option value="Islamabad Capital Territory">Islamabad Capital Territory</option>
+                            <option value="Gilgit-Baltistan">Gilgit-Baltistan</option>
+                            <option value="Azad Jammu and Kashmir">Azad Jammu and Kashmir</option>
+                        </select>
+                        <span asp-validation-for="BuyerProvince" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="BuyerRegistrationType" class="form-label fw-semibold">
+                            Registration Type
+                        </label>
+                        <select asp-for="BuyerRegistrationType" class="form-select form-select-lg">
+                            <option value="">-- Select Type --</option>
+                            <option value="Integrated">Integrated</option>
+                            <option value="Non-Integrated">Non-Integrated</option>
+                            <option value="Unregistered">Unregistered</option>
+                            <option value="Filer">Filer</option>
+                            <option value="Non-Filer">Non-Filer</option>
+                        </select>
+                        <span asp-validation-for="BuyerRegistrationType" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Row 3: Address -->
+                <div class="mb-4">
+                    <label asp-for="BuyerAddress" class="form-label fw-semibold">
+                        Address <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-primary text-white">
+                            <i class="bi bi-geo-alt"></i>
+                        </span>
+                        <textarea asp-for="BuyerAddress" class="form-control rounded-end" rows="3"
+                                  placeholder="Enter complete address" required></textarea>
+                    </div>
+                    <span asp-validation-for="BuyerAddress" class="text-danger small"></span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-end gap-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-check-circle"></i> Create Buyer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="alert alert-info mt-4 rounded-3 d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-info-circle-fill fs-5"></i>
+        <div>
+            <strong>Note:</strong> NTN must be unique. Buyers will be available for selection when creating invoices.
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+ *@

@@ -1,0 +1,645 @@
+﻿@model IEnumerable<OctoDI.Web.Models.DatabaseModels.Buyer>
+@{
+    ViewData["Title"] = "Manage Buyers";
+}
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+        .page-header h2 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-header .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+    .stats-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+    }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+        .stats-icon.purple {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stats-icon.blue {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .stats-icon.green {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+    .buyer-card {
+        background: white;
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 2px solid #f0f0f0;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+        .buyer-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+            transform: translateY(-3px);
+        }
+
+    .buyer-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .buyer-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: start;
+        gap: 10px;
+    }
+
+        .info-item i {
+            color: #667eea;
+            font-size: 18px;
+            margin-top: 2px;
+        }
+
+    .info-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #718096;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-size: 14px;
+        color: #2d3748;
+        font-weight: 500;
+    }
+
+    .btn-modern {
+        border-radius: 12px;
+        padding: 12px 28px;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+    .btn-modern-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-action {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+        .btn-action.edit {
+            background: #edf2f7;
+            color: #667eea;
+        }
+
+            .btn-action.edit:hover {
+                background: #667eea;
+                color: white;
+                transform: scale(1.1);
+            }
+
+        .btn-action.delete {
+            background: #fff5f5;
+            color: #e53e3e;
+        }
+
+            .btn-action.delete:hover {
+                background: #e53e3e;
+                color: white;
+                transform: scale(1.1);
+            }
+
+    .badge-modern {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    .badge-purple {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .badge-blue {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+
+    .badge-green {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+        .empty-state i {
+            font-size: 120px;
+            color: #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #718096;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 25px 30px;
+        border: none;
+    }
+
+    .modal-title {
+        font-weight: 700;
+        font-size: 22px;
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 8px;
+        font-size: 13px;
+    }
+
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        font-size: 14px;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+    .search-box {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-input-wrapper {
+        position: relative;
+    }
+
+        .search-input-wrapper i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            font-size: 18px;
+        }
+
+    .search-input {
+        padding-left: 50px;
+        height: 50px;
+        font-size: 15px;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Alerts -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" style="border-radius: 16px; border: none; box-shadow: 0 4px 15px rgba(72, 187, 120, 0.2);">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" style="border-radius: 16px; border: none; box-shadow: 0 4px 15px rgba(229, 62, 62, 0.2);">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2>
+                    <i class="bi bi-building"></i>
+                    Buyer Management
+                </h2>
+                <div class="subtitle">Manage your business buyers and clients</div>
+            </div>
+            <button type="button" class="btn btn-light btn-modern" data-bs-toggle="modal" data-bs-target="#createBuyerModal">
+                <i class="bi bi-plus-circle"></i> Add New Buyer
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-icon purple">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div class="info-label">Total Buyers</div>
+                <h3 class="mb-0 fw-bold">@Model.Count()</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-icon blue">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="info-label">Registered</div>
+                <h3 class="mb-0 fw-bold">@Model.Count(b => b.BuyerRegistrationType == "Registered")</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="stats-icon green">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+                <div class="info-label">Added This Month</div>
+                <h3 class="mb-0 fw-bold">@Model.Count(b => b.CreatedDate.Month == DateTime.Now.Month)</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Box -->
+    <div class="search-box">
+        <div class="search-input-wrapper">
+            <i class="bi bi-search"></i>
+            <input type="text" class="form-control search-input" id="searchInput"
+                   placeholder="Search buyers by name, NTN, or province...">
+        </div>
+    </div>
+
+    <!-- Buyers List -->
+    @if (Model.Any())
+    {
+        <div id="buyersList">
+            @foreach (var buyer in Model)
+            {
+                <div class="buyer-card" data-buyer-name="@buyer.BuyerBusinessName.ToLower()"
+                     data-buyer-ntn="@buyer.BuyerNTN.ToLower()"
+                     data-buyer-province="@buyer.BuyerProvince.ToLower()">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="buyer-name">
+                                <i class="bi bi-building-fill" style="color: #667eea;"></i>
+                                @buyer.BuyerBusinessName
+                                @if (buyer.BuyerRegistrationType == "Registered")
+                                {
+                                    <span class="badge-modern badge-green">
+                                        <i class="bi bi-patch-check-fill"></i> Registered
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge-modern badge-purple">Unregistered</span>
+                                }
+                            </div>
+
+                            <div class="buyer-info-grid">
+                                <div class="info-item">
+                                    <i class="bi bi-hash"></i>
+                                    <div>
+                                        <div class="info-label">NTN</div>
+                                        <div class="info-value">@buyer.BuyerNTN</div>
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    <div>
+                                        <div class="info-label">Province</div>
+                                        <div class="info-value">@buyer.BuyerProvince</div>
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <i class="bi bi-pin-map-fill"></i>
+                                    <div>
+                                        <div class="info-label">Address</div>
+                                        <div class="info-value">
+                                            @if (!string.IsNullOrEmpty(buyer.BuyerAddress))
+                                            {
+                                                @(buyer.BuyerAddress.Length > 50 ? buyer.BuyerAddress.Substring(0, 50) + "..." : buyer.BuyerAddress)
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not provided</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <i class="bi bi-calendar-event"></i>
+                                    <div>
+                                        <div class="info-label">Created Date</div>
+                                        <div class="info-value">@buyer.CreatedDate.ToString("MMM dd, yyyy")</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a asp-action="Edit" asp-route-id="@buyer.BuyerId" class="btn-action edit" title="Edit">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <button type="button" class="btn-action delete"
+                                    onclick="confirmDelete(@buyer.BuyerId, '@buyer.BuyerBusinessName')"
+                                    title="Delete">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h3>No Buyers Yet</h3>
+            <p>Start building your buyer database by adding your first buyer</p>
+            <button type="button" class="btn btn-modern btn-modern-primary"
+                    data-bs-toggle="modal" data-bs-target="#createBuyerModal">
+                <i class="bi bi-plus-circle"></i> Add First Buyer
+            </button>
+        </div>
+    }
+</div>
+
+<!-- Create Buyer Modal -->
+<div class="modal fade" id="createBuyerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-plus-circle"></i> Add New Buyer
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createBuyerForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-building"></i> Business Name *
+                            </label>
+                            <input type="text" class="form-control" name="BuyerBusinessName"
+                                   placeholder="Enter business name" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-hash"></i> NTN *
+                            </label>
+                            <input type="text" class="form-control" name="BuyerNTN"
+                                   placeholder="Enter NTN number" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-geo-alt"></i> Province *
+                            </label>
+                            <select class="form-select" name="BuyerProvince" required>
+                                <option value="">Select Province</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Sindh">Sindh</option>
+                                <option value="KPK">KPK</option>
+                                <option value="Balochistan">Balochistan</option>
+                                <option value="Islamabad">Islamabad</option>
+                                <option value="Gilgit-Baltistan">Gilgit-Baltistan</option>
+                                <option value="AJK">AJK</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-check-circle"></i> Registration Type *
+                            </label>
+                            <select class="form-select" name="BuyerRegistrationType" required>
+                                <option value="Registered">Registered</option>
+                                <option value="Unregistered">Unregistered</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-pin-map"></i> Address *
+                            </label>
+                            <textarea class="form-control" name="BuyerAddress" rows="3"
+                                      placeholder="Enter complete address" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" style="border-radius: 12px;"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-modern btn-modern-primary" onclick="createBuyer()">
+                    <i class="bi bi-check-circle"></i> Create Buyer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Form -->
+<form id="deleteForm" method="post" asp-action="Delete" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="deleteBuyerId" />
+</form>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const buyers = document.querySelectorAll('.buyer-card');
+
+            buyers.forEach(buyer => {
+                const name = buyer.dataset.buyerName;
+                const ntn = buyer.dataset.buyerNtn;
+                const province = buyer.dataset.buyerProvince;
+
+                if (name.includes(searchTerm) || ntn.includes(searchTerm) || province.includes(searchTerm)) {
+                    buyer.style.display = 'block';
+                } else {
+                    buyer.style.display = 'none';
+                }
+            });
+        });
+
+        // Create buyer function
+        function createBuyer() {
+            const form = document.getElementById('createBuyerForm');
+            const formData = new FormData(form);
+
+            fetch('@Url.Action("Create", "Buyer")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Buyer created successfully',
+                        confirmButtonColor: '#667eea',
+                        timer: 2000
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: data.message || 'Failed to create buyer',
+                        confirmButtonColor: '#667eea'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error,
+                    confirmButtonColor: '#667eea'
+                });
+            });
+        }
+
+        // Delete confirmation
+        function confirmDelete(buyerId, businessName) {
+            Swal.fire({
+                title: 'Delete Buyer?',
+                html: `Are you sure you want to delete <strong>${businessName}</strong>?<br><small class="text-muted">This action cannot be undone.</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e53e3e',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-trash"></i> Yes, Delete',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    popup: 'rounded-4 shadow-lg',
+                    title: 'fw-bold',
+                    confirmButton: 'btn btn-danger px-4',
+                    cancelButton: 'btn btn-secondary px-4'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('deleteBuyerId').value = buyerId;
+                    document.getElementById('deleteForm').submit();
+                }
+            });
+        }
+    </script>
+}

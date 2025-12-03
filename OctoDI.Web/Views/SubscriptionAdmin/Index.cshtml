@@ -1,0 +1,252 @@
+﻿@model OctoDI.Web.Models.ViewModels.SubscriptionAdminDashboardViewModel
+
+@{
+    Layout = "_Layout";
+    var isSubscriptionExpired = Model.SubscriptionEndDate.HasValue && Model.SubscriptionEndDate.Value < DateTime.Now;
+    var isTokenExpired = !Model.IsActive
+                         || (Model.TokenExpiryDate.HasValue && Model.TokenExpiryDate.Value < DateTime.Now);
+}
+
+
+<!-- Subscription Expired Alert -->
+@if (isSubscriptionExpired)
+{
+    <div class="alert alert-danger ...">
+        <strong>Subscription Expired!</strong>
+        <p>Your subscription expired on <b>@Model.SubscriptionEndDate?.ToString("MMMM dd, yyyy")</b>.</p>
+    </div>
+}
+
+<!-- Token Expired or Missing Alert -->
+@if (isTokenExpired && !isSubscriptionExpired)
+{
+    <div class="alert alert-warning ...">
+        <strong>FBR Token Missing or Expired!</strong>
+        <p>
+            Please update it.
+            
+        </p>
+    </div>
+}
+
+@if (Model.TokenExpiryDate.HasValue)
+{
+    <input type="hidden" id="tokenExpiryDate" value="@Model.TokenExpiryDate.Value.ToString("yyyy-MM-ddTHH:mm:ss")" />
+}
+<div class="container py-5">
+    
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="fw-bold text-dark">
+                <i class="bi bi-speedometer2"></i> Subscription Dashboard
+            </h2>
+            <p class="text-muted mb-0">Welcome, @User.Identity.Name</p>
+        </div>
+
+    </div>
+    <!-- Subscription Info Card -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-2">@Model.SubscriptionName</h4>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-calendar3"></i>
+                                Created: @Model.CreatedDate?.ToString("MMMM dd, yyyy")
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <span class="badge @(Model.IsActive ? "bg-success" : "bg-danger") fs-6 px-3 py-2">
+                                @(Model.IsActive ? "Active" : "Blocked")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <!-- Total Users -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="text-primary mb-3">
+                        <i class="bi bi-people-fill" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">@Model.TotalUsers</h3>
+                    <p class="text-muted mb-0">Total Users</p>
+                    <small class="text-success">@Model.ActiveUsers Active</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Invoices -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="text-info mb-3">
+                        <i class="bi bi-receipt" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">@Model.TotalInvoices</h3>
+                    <p class="text-muted mb-0">Total Invoices</p>
+                    <small class="text-warning">@Model.PendingInvoices Pending</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Buyers -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="text-success mb-3">
+                        <i class="bi bi-building" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">@Model.TotalBuyers</h3>
+                    <p class="text-muted mb-0">Total Buyers</p>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- FBR Integration -->
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="@(Model.isActive ? "text-success" : "text-danger") mb-3">
+                        <i class="bi bi-shield-check" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">FBR Integration</h6>
+                    <span class="badge @(Model.isActive ? "bg-success" : "bg-danger")">
+                        @(Model.isActive ? "Configured" : "Not Set")
+                    </span>
+                    @if (Model.LastFbrSync.HasValue)
+                    {
+                        <p class="text-muted small mb-0 mt-2">
+                            Last Sync: @Model.LastFbrSync.Value.ToString("MMM dd, hh:mm tt")
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col">
+            <h5 class="fw-bold mb-3">Quick Actions</h5>
+        </div>
+    </div>
+    <div class="row g-3">
+
+        <div class="col-md-3">
+            <a asp-controller="Buyer" asp-action="Index"
+               class="btn gradient-hover-btn-success w-100 py-3 rounded-3 shadow-sm hover-scale">
+                <i class="bi bi-person-badge"></i><br />
+                <span class="small">Buyer Management</span>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <a asp-controller="Invoice" asp-action="Index"
+               asp-route-subscriptionId="@Model.SubscriptionId"
+               class="btn gradient-hover-btn-success w-100 py-3">
+                <i class="bi bi-receipt"></i><br />
+                <span class="small">Manage Invoices</span>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <a asp-action="Users" asp-route-subscriptionId="@Model.SubscriptionId"
+               class="btn gradient-hover-btn-success w-100 py-3">
+                <i class="bi bi-people-fill"></i><br />
+                <span class="small">Manage Employee</span>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <a asp-controller="Product" asp-action="Dashboard"
+               asp-route-subscriptionId="@Model.SubscriptionId"
+               class="btn gradient-hover-btn-success w-100 py-3">
+                <i class="bi bi-receipt"></i><br />
+                <span class="small">Add Product</span>
+            </a>
+        </div>
+
+    </div>
+
+</div>
+<style>
+    .alert {
+        border-radius: 0.75rem !important;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #ff6b6b, #f06595);
+        color: #fff;
+    }
+
+    .alert-warning {
+        background: linear-gradient(135deg, #ffe066, #fab005);
+        color: #222;
+    }
+
+    .alert a {
+        color: #222;
+        text-decoration: underline;
+    }
+
+    .gradient-hover-btn-success {
+        border-width: 2px;
+        transition: 0.3s ease;
+        color: #667eea !important;
+        border-color: #667eea !important;
+    }
+
+        .gradient-hover-btn-success:hover {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: #fff !important;
+            border-color: transparent !important;
+        }
+
+            .gradient-hover-btn-success:hover i {
+                color: #fff !important;
+            }
+</style>
+<script>
+        const tokenInput = document.getElementById('tokenExpiryDate');
+
+    if (tokenInput) {
+        const expiryDate = new Date(tokenInput.value);
+
+        setInterval(() => {
+            const now = new Date();
+            const diffMs = expiryDate - now;
+            const diffHours = diffMs / (1000 * 60 * 60);
+
+            let alertDiv = document.getElementById('token-expiry-alert');
+
+            if (diffHours <= 1 && diffMs > 0) {
+                // Show warning alert if not already shown
+                if (!alertDiv) {
+                    alertDiv = document.createElement('div');
+                    alertDiv.id = 'token-expiry-alert';
+                    alertDiv.className = 'alert alert-danger text-center m-0';
+                    alertDiv.innerHTML = `
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Warning: Your FBR token will expire in less than 1 hour!
+                    `;
+                    document.body.prepend(alertDiv);
+                }
+            } else {
+                // Remove alert if expired or more than 1 hour left
+                if (alertDiv) alertDiv.remove();
+            }
+        }, 10000); // checks every 10 seconds
+    }
+
+</script>

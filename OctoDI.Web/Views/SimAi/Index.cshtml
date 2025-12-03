@@ -1,0 +1,112 @@
+﻿@{
+    ViewData["Title"] = "SimAI Chat";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">SimAI Chat Assistant</h4>
+                </div>
+                <div class="card-body">
+                    <div id="chatMessages" class="border rounded p-3 mb-3" style="height: 400px; overflow-y: auto; background-color: #f8f9fa;">
+                        <div class="text-muted text-center py-5">
+                            <i class="fas fa-comments fa-3x mb-3"></i>
+                            <p>Start a conversation with SimAI</p>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text"
+                               id="messageInput"
+                               class="form-control"
+                               placeholder="Type your message..."
+                               onkeypress="handleKeyPress(event)">
+                        <button class="btn btn-primary" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Display user message
+            addMessage(message, 'user');
+            input.value = '';
+
+            // Show loading
+            const loadingId = addMessage('Thinking...', 'assistant', true);
+
+            // Send to API
+            fetch('/SimAi/Chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove loading message
+                document.getElementById(loadingId)?.remove();
+
+                // Add AI response
+                addMessage(data.reply, 'assistant');
+            })
+            .catch(error => {
+                document.getElementById(loadingId)?.remove();
+                addMessage('Error: Could not connect to SimAI', 'error');
+                console.error('Error:', error);
+            });
+        }
+
+        function addMessage(text, type, isLoading = false) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageId = 'msg-' + Date.now();
+
+            // Remove welcome message if exists
+            const welcome = messagesDiv.querySelector('.text-muted.text-center');
+            if (welcome) welcome.remove();
+
+            const messageDiv = document.createElement('div');
+            messageDiv.id = messageId;
+            messageDiv.className = `mb-3 ${type === 'user' ? 'text-end' : ''}`;
+
+            const bubble = document.createElement('div');
+            bubble.className = `d-inline-block p-3 rounded ${
+                type === 'user' ? 'bg-primary text-white' :
+                type === 'error' ? 'bg-danger text-white' :
+                'bg-white border'
+            }`;
+            bubble.style.maxWidth = '75%';
+            bubble.textContent = text;
+
+            if (isLoading) {
+                bubble.innerHTML = '<div class="spinner-border spinner-border-sm me-2"></div>Thinking...';
+            }
+
+            messageDiv.appendChild(bubble);
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            return messageId;
+        }
+    </script>
+}

@@ -1,0 +1,64 @@
+﻿@model List<OctoDI.Web.Models.DatabaseModels.Product>
+@{
+    ViewData["Title"] = "Preview Products - Confirm Import";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header text-white py-3 rounded-top-4" style="background: linear-gradient(to right,#28a745,#20c997);">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-clipboard-check"></i> Preview Products - Confirm Import</h4>
+            </div>
+            <div class="card-body p-4">
+
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Please review the data below before importing.</strong>
+                    Total products to import: <strong>@Model.Count</strong>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Product Description</th>
+                                <th>Unit ID</th>
+                                <th>Category ID</th>
+                                <th>Rate</th>
+                                <th>HS Code</th>
+                                <th>Tax Rate (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                                <tr>
+                                    <td>@(i + 1)</td>
+                                    <td>@Model[i].ProductDescription</td>
+                                    <td>@Model[i].UnitId</td>
+                                    <td>@Model[i].ServiceCategoryId</td>
+                                    <td>@Model[i].Rate.ToString("N2")</td>
+                                    <td>@Model[i].HSCode</td>
+                                    <td>@Model[i].TaxRate.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <form asp-action="ConfirmImport" method="post">
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle"></i> Confirm & Import All Products
+                        </button>
+                        <a asp-action="ImportProducts" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel & Upload Different File
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>

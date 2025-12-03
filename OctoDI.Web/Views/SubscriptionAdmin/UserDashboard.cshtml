@@ -1,0 +1,130 @@
+﻿@model OctoDI.Web.Models.ViewModels.SubscriptionUserDashboardViewModel
+
+@{
+    Layout = "_Layout";
+}
+
+<style>
+
+    .card-stat {
+        border-radius: 18px;
+        padding: 25px 10px;
+        background: #fff;
+        transition: 0.25s ease;
+        border: 1px solid #f1f1f1;
+    }
+
+        .card-stat:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+
+    .gradient-hover-btn-success {
+        border-width: 2px;
+        transition: 0.3s ease;
+        color: #667eea !important;
+        border-color: #667eea !important;
+    }
+
+        .gradient-hover-btn-success:hover {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: #fff !important;
+            border-color: transparent !important;
+        }
+
+            .gradient-hover-btn-success:hover i {
+                color: #fff !important;
+            }
+
+    .hover-scale {
+        transition: transform 0.3s ease;
+    }
+
+        .hover-scale:hover {
+            transform: translateY(-4px);
+        }
+
+   
+
+</style>
+
+
+<div class="container py-5">
+
+    <h2 class="fw-bold text-dark mb-2">
+        <i class="bi bi-speedometer2"></i> User Dashboard
+    </h2>
+    <p class="text-muted mb-4">Welcome back!</p>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-4">
+            <div class="card-stat text-center shadow-sm">
+                <i class="bi bi-receipt text-primary stat-icon"></i>
+                <h3 class="fw-bold">@Model.TotalInvoices</h3>
+                <p class="text-muted mb-0">Your Total Invoices</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-stat text-center shadow-sm">
+                <i class="bi bi-people-fill text-success stat-icon"></i>
+                <h3 class="fw-bold">@Model.TotalBuyers</h3>
+                <p class="text-muted mb-0">Buyers</p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-stat text-center shadow-sm">
+                <i class="bi bi-box-seam text-info stat-icon"></i>
+                <h3 class="fw-bold">@Model.TotalProducts</h3>
+                <p class="text-muted mb-0">Products</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Quick Actions -->
+    <!-- Quick Actions -->
+    <div class="row mb-2">
+        <div class="col">
+            <h5 class="fw-bold mb-3">Quick Actions</h5>
+        </div>
+    </div>
+
+    <div class="row g-3">
+
+        <div class="col-md-4">
+            <a asp-controller="Buyer" asp-action="Index"
+               class="btn gradient-hover-btn-success w-100 py-3 rounded-3 shadow-sm hover-scale">
+                <i class="bi bi-person-badge"></i><br />
+                <span class="small">Buyer Management</span>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a asp-controller="Invoice" asp-action="Index"
+               class="btn gradient-hover-btn-success w-100 py-3 rounded-3 shadow-sm hover-scale">
+                <i class="bi bi-receipt"></i><br />
+                <span class="small">Manage Invoices</span>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a asp-controller="Product" asp-action="Dashboard"
+               class="btn gradient-hover-btn-success w-100 py-3 rounded-3 shadow-sm hover-scale">
+                <i class="bi bi-box"></i><br />
+                <span class="small">Add Product</span>
+            </a>
+        </div>
+
+    </div>
+
+
+</div>

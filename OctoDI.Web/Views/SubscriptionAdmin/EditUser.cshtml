@@ -1,0 +1,316 @@
+﻿@model OctoDI.Web.Models.DatabaseModels.User
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<style>
+    .modern-container {
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .modern-card {
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        background-color: #fff;
+        transition: all 0.3s ease;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border-radius: 0.75rem;
+        border: 1px solid #ced4da;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .form-control:disabled, .form-select:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-radius: 0.75rem 0 0 0.75rem;
+        border: 1px solid #ced4da;
+    }
+
+    .btn-primary {
+        border-radius: 0.75rem;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+    .btn-danger {
+        border-radius: 0.75rem;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+        .page-header h2 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+    .alert {
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        font-size: 0.95rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .readonly-badge {
+        display: inline-block;
+        background-color: #6c757d;
+        color: white;
+        font-size: 0.7rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 0.25rem;
+        margin-left: 0.5rem;
+    }
+</style>
+
+<div class="modern-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2>
+            <i class="bi bi-person-gear"></i> Edit User
+        </h2>
+        <a asp-action="Users" asp-route-subscriptionId="@ViewBag.SubscriptionId" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Users
+        </a>
+    </div>
+
+    <!-- Validation Summary -->
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    <!-- Form Card -->
+    <div class="modern-card">
+        <form asp-action="EditUser" method="post">
+            <input type="hidden" asp-for="UserId" />
+            <input type="hidden" asp-for="SubscriptionId" />
+            <input type="hidden" asp-for="Email" />
+            <input type="hidden" asp-for="FirstName" />
+            <input type="hidden" asp-for="LastName" />
+            <input type="hidden" asp-for="UserRole" />
+            <input type="hidden" asp-for="Remarks" />
+
+            <!-- READ ONLY: Subscription -->
+            <div class="mb-3">
+                <label asp-for="SubscriptionId" class="form-label fw-bold">
+                    Subscription <span class="readonly-badge">READ ONLY</span>
+                </label>
+                <select asp-for="SubscriptionId" class="form-select" asp-items="ViewBag.Subscriptions" disabled>
+                    <option value="">-- Select Subscription --</option>
+                </select>
+            </div>
+
+            <div class="row mb-3">
+                <!-- EDITABLE: Username -->
+                <div class="col-md-6">
+                    <label asp-for="Username" class="form-label fw-bold">
+                        Username <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input asp-for="Username" class="form-control" placeholder="Enter username" />
+                    </div>
+                    <span asp-validation-for="Username" class="text-danger small"></span>
+                </div>
+
+                <!-- READ ONLY: Email -->
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label fw-bold">
+                        Email <span class="readonly-badge">READ ONLY</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input asp-for="Email" class="form-control" type="email" placeholder="user@example.com" disabled />
+                    </div>
+                </div>
+            </div>
+
+            <!-- READ ONLY: First Name & Last Name -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label fw-bold">
+                        First Name <span class="readonly-badge">READ ONLY</span>
+                    </label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Enter first name" disabled />
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label fw-bold">
+                        Last Name <span class="readonly-badge">READ ONLY</span>
+                    </label>
+                    <input asp-for="LastName" class="form-control" placeholder="Enter last name" disabled />
+                </div>
+            </div>
+
+            <!-- READ ONLY: Role & EDITABLE: Status -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="UserRole" class="form-label fw-bold">
+                        Role <span class="readonly-badge">READ ONLY</span>
+                    </label>
+                    <select asp-for="UserRole" class="form-select" disabled>
+                        <option value="">-- Select Role --</option>
+                        <option value="SubscriptionUser">Subscription User</option>
+                        <option value="Employee">Employee</option>
+                        <option value="Manager">Manager</option>
+                    </select>
+                </div>
+
+                <!-- EDITABLE: Status -->
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Status <span class="text-primary">*</span></label>
+                    <div class="form-check form-switch mt-2">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch">
+                        <label asp-for="IsActive" class="form-check-label fw-bold">
+                            @(Model.IsActive ? "Active" : "Inactive")
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EDITABLE: Phone Number & Password -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="PhoneNumber" class="form-label fw-bold">Phone Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="+92-300-1234567" />
+                    </div>
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="newPassword" class="form-label fw-bold">New Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" id="newPassword" name="newPassword" class="form-control" placeholder="Leave blank to keep current" />
+                    </div>
+                    <small class="text-muted">Leave empty to keep current password</small>
+                </div>
+            </div>
+
+            <!-- EDITABLE: Two Factor Authentication -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="IsTwoFactorEnabled" class="form-label fw-bold">
+                        Two-Factor Authentication <span class="text-primary">*</span>
+                    </label>
+                    <select asp-for="IsTwoFactorEnabled" class="form-select">
+                        <option value="false">Disabled</option>
+                        <option value="true">Enabled</option>
+                    </select>
+                    <span asp-validation-for="IsTwoFactorEnabled" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <!-- READ ONLY: Remarks -->
+            <div class="mb-4">
+                <label asp-for="Remarks" class="form-label fw-bold">
+                    Remarks <span class="readonly-badge">READ ONLY</span>
+                </label>
+                <textarea asp-for="Remarks" class="form-control" rows="3" placeholder="Optional notes about this user" disabled></textarea>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <button type="button" class="btn btn-danger" onclick="confirmDelete(@Model.UserId, '@Model.Username')">
+                    <i class="bi bi-trash"></i> Delete User
+                </button>
+
+                <div class="d-flex gap-2">
+                    <a asp-action="Users" asp-route-subscriptionId="@ViewBag.SubscriptionId" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Update User
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="alert alert-info mt-3" role="alert">
+        <i class="bi bi-info-circle-fill"></i>
+        <strong>Editable Fields:</strong> Username, Phone Number, Password, Status, and Two-Factor Authentication. All other fields are read-only.
+    </div>
+</div>
+
+<!-- Delete Confirmation Form -->
+<form id="deleteForm" method="post" asp-action="DeleteUser" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="deleteUserId" />
+    <input type="hidden" name="subscriptionId" value="@ViewBag.SubscriptionId" />
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function confirmDelete(userId, username) {
+            if (confirm(`Are you sure you want to delete user "${username}"?\n\nThis action cannot be undone!`)) {
+                document.getElementById('deleteUserId').value = userId;
+                document.getElementById('deleteForm').submit();
+            }
+        }
+
+        // Update status label when toggle switch changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSwitch = document.querySelector('input[name="IsActive"]');
+            const statusLabel = document.querySelector('label[for="IsActive"]');
+
+            if (statusSwitch && statusLabel) {
+                statusSwitch.addEventListener('change', function() {
+                    statusLabel.textContent = this.checked ? 'Active' : 'Inactive';
+                });
+            }
+
+            // Set selected role
+            const roleSelect = document.querySelector('select[name="UserRole"]');
+            if (roleSelect && '@Model.UserRole') {
+                roleSelect.value = '@Model.UserRole';
+            }
+
+            // Set selected Two-Factor Authentication value
+            const twoFactorSelect = document.querySelector('select[name="IsTwoFactorEnabled"]');
+            if (twoFactorSelect) {
+                twoFactorSelect.value = '@Model.IsTwoFactorEnabled'.toLowerCase();
+            }
+        });
+    </script>
+}

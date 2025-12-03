@@ -1,0 +1,397 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - OctoDI.Web</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/OctoDI.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+
+</head>
+<body>
+    <div id="globalLoader" class="global-loader">
+        <div class="loader">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+    </div>
+    <!-- Notification container -->
+    <div class="position-fixed top-0 end-0 m-3" style="z-index:1050; min-width:300px;">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+    </div>
+
+    <!-- Header / Navbar -->
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/InvoiceLogo.png" alt="Logo" />
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="mainMenu" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-grid-fill"></i> Menu
+                            </a>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/SimAi/Index">
+                                <i class="bi bi-speedometer2"></i> SIM Dashboard
+                            </a>
+                        </li>
+
+
+                            <ul class="dropdown-menu" aria-labelledby="mainMenu" style="min-width: 220px;">
+
+                                @* ================= SUPER ADMIN MENU ================= *@
+                                @if (User.IsInRole("SuperAdmin"))
+                                {
+                                    <li>
+                                        <a class="dropdown-item" href="/SuperAdmin/Dashboard">
+                                            <i class="bi bi-speedometer2"></i> Dashboard
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" href="/SuperAdmin/Index">
+                                            <i class="bi bi-diagram-3"></i> Manage Subscriptions
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" href="/UserManagement/Index">
+                                            <i class="bi bi-people"></i> Manage Users
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider" /></li>
+
+                                    <li>
+                                        <a class="dropdown-item" href="/SuperAdmin/SettingIndex">
+                                            <i class="bi bi-gear"></i> Settings
+                                        </a>
+                                    </li>
+                                }
+
+                                @* ================= SUBSCRIPTION ADMIN MENU ================= *@
+                                @if (User.IsInRole("SubscriptionAdmin"))
+                                {
+                                    <li>
+                                        <a class="dropdown-item" href="/SubscriptionAdmin/Index">
+                                            <i class="bi bi-speedometer2"></i> Dashboard
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" href="/Product/Dashboard">
+                                            <i class="bi bi-box-seam"></i> Product
+                                        </a>
+                                    </li>
+
+
+                                    <li>
+                                        <a class="dropdown-item" href="/Buyer/Index">
+                                            <i class="bi bi-person-badge"></i> Buyer
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" href="/Invoice/Create">
+                                            <i class="bi bi-receipt"></i> Create Invoice
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" href="/Invoice/Index">
+                                            <i class="bi bi-file-text"></i> My Invoices
+                                        </a>
+                                    </li>
+                                }
+
+                                @* ================= SUBSCRIPTION USER MENU ================= *@
+                                @if (User.IsInRole("SubscriptionUser"))
+                                {
+                                    <li>
+                                        <a class="dropdown-item" href="/SubscriptionAdmin/UserDashboard">
+                                            <i class="bi bi-speedometer2"></i> Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="/Product/Dashboard">
+                                            <i class="bi bi-box-seam"></i> Product
+                                        </a>
+                                    </li>
+
+
+                                    <li>
+                                        <a class="dropdown-item" href="/Buyer/Index">
+                                            <i class="bi bi-person-badge"></i> Buyer
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" href="/Invoice/Create">
+                                            <i class="bi bi-receipt"></i> Create Invoice
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" href="/Invoice/Index">
+                                            <i class="bi bi-folder2-open"></i> My Invoices
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+                    </ul>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {   
+
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @* Avatar: image or first letter *@
+                                    @{
+                                        var username = User.Identity.Name ?? "User";
+                                        var profileUrl = User.FindFirst("ProfileImageUrl")?.Value;
+
+                                        // Fallback: first word of username if email not present
+                                        var Email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
+                                    }
+                                    @if (!string.IsNullOrEmpty(profileUrl))
+                                    {
+                                        <img src="@profileUrl" class="rounded-circle me-2" style="width:32px; height:32px;" alt="User" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-2"
+                                             style="width:32px; height:32px; font-weight:bold;">
+                                            @username.Substring(0, 1).ToUpper()
+                                        </div>
+                                    }
+                                    <span>@username</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li class="px-3 py-2">
+                                        <strong>@username</strong><br />
+                                        <small>
+                                            Role: @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value<br />
+                                            Email: @(string.IsNullOrEmpty(Email) ? username.Split(' ')[0] + "@example.com" : Email)
+                                        </small>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="px-3 py-1">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-danger w-100">
+                                                <i class="bi bi-box-arrow-right"></i> Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    }
+
+                </div>
+            </div>
+        </nav>
+
+    </header>
+
+    <style>
+        @@media (min-width: 1200px) {
+            .container, .container-lg, .container-md, .container-sm, .container-xl {
+                max-width: 1301px;
+            }
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .navbar-brand img {
+                height: 57px;
+                width: auto;
+            }
+    </style>
+
+    <!-- Main content -->
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - E-Invoiceing.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <!-- SignalR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/subscriptionHub")
+            .withAutomaticReconnect()
+            .build();
+
+        // Receive live updates
+        connection.on("ReceiveUpdate", function(message) {
+            const container = document.querySelector(".position-fixed.top-0.end-0");
+            const div = document.createElement("div");
+            div.className = "alert alert-warning alert-dismissible fade show";
+            div.role = "alert";
+            div.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${message}
+                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+            container.appendChild(div);
+
+            // Auto logout if message contains token expiry
+            if (message.toLowerCase().includes("token")) {
+                setTimeout(() => window.location.href = "/Account/Logout", 3000);
+            }
+        });
+
+        connection.start()
+            .then(() => console.log("SignalR connected"))
+            .catch(err => console.error(err));
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+<script>
+    // Global Loader Controller
+    (function() {
+        const loader = document.getElementById('globalLoader');
+        let activeRequests = 0;
+
+        // Show loader
+        window.showLoader = function() {
+            activeRequests++;
+            if (loader) {
+                loader.classList.remove('hidden');
+            }
+        };
+
+        // Hide loader
+        window.hideLoader = function() {
+            activeRequests = Math.max(0, activeRequests - 1);
+            if (activeRequests === 0 && loader) {
+                loader.classList.add('hidden');
+            }
+        };
+
+        // Hide loader when page is fully loaded
+        window.addEventListener('load', function() {
+            setTimeout(hideLoader, 300);
+        });
+
+        // Show loader on page unload (navigation)
+        window.addEventListener('beforeunload', function() {
+            showLoader();
+        });
+
+        // Intercept all form submissions
+        document.addEventListener('submit', function(e) {
+            showLoader();
+        });
+
+        // Intercept all AJAX requests (jQuery)
+        if (typeof $ !== 'undefined') {
+            $(document).ajaxStart(function() {
+                showLoader();
+            });
+
+            $(document).ajaxComplete(function() {
+                hideLoader();
+            });
+
+            $(document).ajaxError(function() {
+                hideLoader();
+            });
+        }
+
+        // Intercept fetch API requests
+        const originalFetch = window.fetch;
+        window.fetch = function() {
+            showLoader();
+            return originalFetch.apply(this, arguments)
+                .then(function(response) {
+                    hideLoader();
+                    return response;
+                })
+                .catch(function(error) {
+                    hideLoader();
+                    throw error;
+                });
+        };
+
+        // Intercept XMLHttpRequest
+        const originalOpen = XMLHttpRequest.prototype.open;
+        const originalSend = XMLHttpRequest.prototype.send;
+
+        XMLHttpRequest.prototype.open = function() {
+            this._url = arguments[1];
+            return originalOpen.apply(this, arguments);
+        };
+
+        XMLHttpRequest.prototype.send = function() {
+            showLoader();
+            this.addEventListener('loadend', function() {
+                hideLoader();
+            });
+            return originalSend.apply(this, arguments);
+        };
+
+        // Handle navigation clicks
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a');
+            if (link && link.href &&
+                !link.target &&
+                !link.hasAttribute('data-bs-toggle') &&
+                !link.classList.contains('no-loader')) {
+                const url = new URL(link.href);
+                if (url.origin === window.location.origin) {
+                    showLoader();
+                }
+            }
+        });
+    })();
+</script>
+</html>

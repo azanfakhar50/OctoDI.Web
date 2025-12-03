@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+    var reason = Context.Request.Query["reason"].ToString();
+}
+
+<div class="container mt-5 text-center">
+    <h2 class="text-danger fw-bold">Access Denied</h2>
+    <p class="mt-3">
+        @switch (reason)
+        {
+            case "expired":
+                <span>Your subscription has expired. Please contact the SuperAdmin to renew.</span>
+                break;
+            case "blocked":
+                <span>Your subscription has been blocked by SuperAdmin.</span>
+                break;
+            case "tokenexpired":
+                <span>Your FBR token has expired. Please regenerate your token.</span>
+                break;
+            default:
+                <span>Invalid or inactive subscription.</span>
+                break;
+        }
+    </p>
+    <a href="/Account/Login" class="btn btn-primary mt-4">Return to Login</a>
+</div>

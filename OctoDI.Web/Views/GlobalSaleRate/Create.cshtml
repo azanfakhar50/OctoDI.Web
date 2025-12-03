@@ -1,0 +1,82 @@
+﻿@model OctoDI.Web.Models.DatabaseModels.GlobalSaleRate
+
+@{
+    ViewData["Title"] = "Add Global Sale Rate";
+}
+
+<div class="card shadow-sm rounded-4 p-4 border-0" style="max-width: 850px; margin:auto;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold m-0">
+            <i class="bi bi-plus-circle"></i> Add Global Sale Rate
+        </h5>
+
+        <a asp-action="Import" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-file-earmark-excel"></i> Import Excel
+        </a>
+    </div>
+
+    <form asp-action="Create" method="post" class="row g-3">
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold small">Product Description</label>
+            <input asp-for="ProductDescription" class="form-control form-control-sm" placeholder="Product name" required />
+            <span asp-validation-for="ProductDescription" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold small">HS Code (Optional)</label>
+            <input asp-for="HSCode" class="form-control form-control-sm" placeholder="HS Code" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold small">Unit</label>
+            <select asp-for="UnitId" class="form-select form-select-sm" required>
+                <option value="">-- Select Unit --</option>
+                @foreach (var unit in ViewBag.Units)
+                {
+                    <option value="@unit.UnitId">@unit.Name</option>
+                }
+            </select>
+            <span asp-validation-for="UnitId" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold small">Service Category</label>
+            <select asp-for="ServiceCategoryId" class="form-select form-select-sm" required>
+                <option value="">-- Select Category --</option>
+                @foreach (var cat in ViewBag.ServiceCategories)
+                {
+                    <option value="@cat.ServiceCategoryId">@cat.Name</option>
+                }
+            </select>
+            <span asp-validation-for="ServiceCategoryId" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold small">Rate</label>
+            <input asp-for="Rate" class="form-control form-control-sm" type="number" step="0.01" placeholder="0.00" required />
+            <span asp-validation-for="Rate" class="text-danger small"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold small">Tax Rate (%)</label>
+            <input asp-for="TaxRate" class="form-control form-control-sm" type="number" step="0.01" placeholder="0.00" required />
+            <span asp-validation-for="TaxRate" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-3">
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+
+            <button type="submit" class="btn btn-sm btn-success px-3">
+                <i class="bi bi-check-circle"></i> Save
+            </button>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

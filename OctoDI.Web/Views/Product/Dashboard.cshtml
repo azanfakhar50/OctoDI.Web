@@ -1,0 +1,253 @@
+﻿@model OctoDI.Web.Models.ViewModels.ProductDashboardVM
+
+@{
+    ViewData["Title"] = "Product Dashboard";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark mb-0">Product Dashboard</h2>
+        <a asp-controller="SubscriptionAdmin" asp-action="Index" asp-route-subscriptionId="@ViewBag.SubscriptionId" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Users
+        </a>
+
+    </div>
+
+    <div class="row">
+
+        <!-- ==================== UNITS CARD ==================== -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header text-white fw-bold rounded-top-4"
+                     style="background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);">
+                <i class="bi bi-rulers"></i> Units
+                </div>
+
+                <div class="card-body">
+
+                    <button class="btn btn-success  btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#createUnitModal">
+                        + Add Unit
+                    </button>
+
+                    <ul class="list-group">
+                        @foreach (var u in Model.Units)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @u.Name
+
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editUnitModal"
+                                        data-id="@u.UnitId"
+                                        data-name="@u.Name">
+                                    Edit
+                                </button>
+                            </li>
+                        }
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CATEGORY CARD ==================== -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header text-white fw-bold rounded-top-4"
+                     style="background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);">
+                    <i class="bi bi-tags"></i> Service Categories
+                </div>
+
+                <div class="card-body">
+
+                    <button class="btn btn-success btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                        + Add Category
+                    </button>
+
+                    <ul class="list-group">
+                        @foreach (var c in Model.Categories)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @c.Name (@c.TaxRate %)
+
+                                <button class="btn btn-sm btn-outline-secondary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editCategoryModal"
+                                        data-id="@c.ServiceCategoryId"
+                                        data-name="@c.Name"
+                                        data-tax="@c.TaxRate">
+                                    Edit
+                                </button>
+                            </li>
+                        }
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== PRODUCTS CARD ==================== -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header text-white fw-bold rounded-top-4"
+                     style="background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);">
+                    <i class="bi bi-box-seam"></i> Products
+                </div>
+
+                <div class="card-body">
+
+                    <a href="@Url.Action("Create", "Product")" class="btn btn-success btn-sm mb-3">+ Add Product</a>
+
+                    <ul class="list-group">
+                        @foreach (var p in Model.Products)
+                        {
+                            <li class="list-group-item">
+                                <span class="fw-semibold">@p.ProductDescription</span>
+                                <br />
+                                <small class="text-muted">HS: @p.HSCode | Rate: @p.Rate</small>
+                            </li>
+                        }
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- ==================== MODALS BELOW ========================= -->
+<!-- ========================================================= -->
+<!-- CREATE UNIT MODAL -->
+<div class="modal fade" id="createUnitModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 shadow">
+            <div class="modal-header bg-primary text-white rounded-top-4">
+                <h5 class="modal-title fw-bold">Add Unit</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form asp-action="CreateUnit" method="post">
+                <div class="modal-body">
+                    <label class="form-label">Unit Name</label>
+                    <input name="Name" class="form-control" placeholder="KG, PCS, etc" required />
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- EDIT UNIT MODAL -->
+<div class="modal fade" id="editUnitModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 shadow">
+            <div class="modal-header bg-secondary text-white rounded-top-4">
+                <h5 class="modal-title fw-bold">Edit Unit</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form asp-action="EditUnit" method="post">
+
+                <div class="modal-body">
+                    <input type="hidden" id="editUnitId" name="UnitId" />
+
+                    <label class="form-label">Unit Name</label>
+                    <input id="editUnitName" name="Name" class="form-control" required />
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary">Update</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- CREATE CATEGORY MODAL -->
+<div class="modal fade" id="createCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 shadow">
+            <div class="modal-header bg-primary text-white rounded-top-4">
+                <h5 class="modal-title fw-bold">Add Service Category</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form asp-action="CreateServiceCategory" method="post">
+                <div class="modal-body">
+
+                    <label class="form-label">Category Name</label>
+                    <input name="Name" class="form-control" required />
+
+                    <label class="form-label mt-3">Tax Rate (%)</label>
+                    <input name="TaxRate" type="number" class="form-control" required />
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- EDIT CATEGORY MODAL -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 shadow">
+            <div class="modal-header bg-secondary text-white rounded-top-4">
+                <h5 class="modal-title fw-bold">Edit Category</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form asp-action="EditServiceCategory" method="post">
+
+                <div class="modal-body">
+
+                    <input type="hidden" id="editCatId" name="ServiceCategoryId" />
+
+                    <label class="form-label">Category Name</label>
+                    <input id="editCatName" name="Name" class="form-control" required />
+
+                    <label class="form-label mt-3">Tax Rate (%)</label>
+                    <input id="editCatTax" name="TaxRate" type="number" class="form-control" required />
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary">Update</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPT FOR MODAL DATA FILLING -->
+<script>
+    const editUnitModal = document.getElementById('editUnitModal');
+    editUnitModal.addEventListener('show.bs.modal', function (event) {
+        let btn = event.relatedTarget;
+        document.getElementById('editUnitId').value = btn.getAttribute('data-id');
+        document.getElementById('editUnitName').value = btn.getAttribute('data-name');
+    });
+
+    const editCategoryModal = document.getElementById('editCategoryModal');
+    editCategoryModal.addEventListener('show.bs.modal', function (event) {
+        let btn = event.relatedTarget;
+        document.getElementById('editCatId').value = btn.getAttribute('data-id');
+        document.getElementById('editCatName').value = btn.getAttribute('data-name');
+        document.getElementById('editCatTax').value = btn.getAttribute('data-tax');
+    });
+</script>

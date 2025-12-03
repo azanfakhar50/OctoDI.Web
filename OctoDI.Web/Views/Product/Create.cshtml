@@ -1,0 +1,128 @@
+﻿@model OctoDI.Web.Models.DatabaseModels.Product
+@{
+    ViewData["Title"] = "Add Product";
+    var units = ViewBag.Units as List<OctoDI.Web.Models.DatabaseModels.Unit>;
+    var categories = ViewBag.Categories as dynamic;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header text-white py-3 rounded-top-4" style="background: linear-gradient(to right,#9d50bb,#6e48aa);">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-box-seam"></i> Add Product</h4>
+            </div>
+            <div class="card-body p-4">
+
+                @* @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show">
+                        @TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                } *@
+
+                <form asp-action="Create" method="post">
+                    <input type="hidden" asp-for="SubscriptionId" value="@ViewBag.SubscriptionId" />
+
+                    <div class="mb-3">
+                        <label asp-for="ProductDescription" class="form-label fw-semibold">Product Description</label>
+                        <textarea asp-for="ProductDescription" class="form-control" placeholder="Enter description"></textarea>
+                        <span asp-validation-for="ProductDescription" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="UnitId" class="form-label fw-semibold">Unit</label>
+                            <select asp-for="UnitId" class="form-select">
+                                <option value="">-- Select Unit --</option>
+                                @foreach (var u in ViewBag.Units)
+                                {
+                                    <option value="@u.UnitId">@u.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="UnitId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Category</label>
+                            <select asp-for="ServiceCategoryId" class="form-select" id="categorySelect">
+                                <option value="">-- Select Category --</option>
+                                @foreach (var c in ViewBag.Categories)
+                                {
+                                    <option value="@c.ServiceCategoryId">@c.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Rate" class="form-label fw-semibold">Rate / Value</label>
+                            <input asp-for="Rate" class="form-control" />
+                            <span asp-validation-for="Rate" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TaxRate" class="form-label fw-semibold">Tax Rate (%)</label>
+                            <input asp-for="TaxRate" class="form-control" readonly id="taxRateInput" />
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-save"></i> Save Product
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <a asp-action="ImportProducts" class="btn btn-success w-100">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> Import Excel
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-2">
+                            <a asp-action="Dashboard" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left-circle"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#categorySelect').change(function () {
+                var categoryId = $(this).val();
+                if (categoryId) {
+                    $.ajax({
+                        url: '@Url.Action("GetTaxRate", "Product")',
+                        data: { categoryId: categoryId },
+                        success: function (data) {
+                            if (data.success) {
+                                $('#taxRateInput').val(data.taxRate);
+                            } else {
+                                $('#taxRateInput').val(0);
+                            }
+                        }
+                    });
+                } else {
+                    $('#taxRateInput').val(0);
+                }
+            });
+        });
+    </script>
+}

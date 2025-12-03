@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Import Products from Excel";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header text-white py-3 rounded-top-4" style="background: linear-gradient(to right,#28a745,#20c997);">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-file-earmark-excel"></i> Import Products from Excel</h4>
+            </div>
+            <div class="card-body p-4">
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show">
+                        @TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                @if (TempData["Errors"] != null)
+                {
+                    var errors = Newtonsoft.Json.JsonConvert.DeserializeObject<List<string>>(TempData["Errors"].ToString());
+                    <div class="alert alert-warning alert-dismissible fade show">
+                        <strong>Validation Errors:</strong>
+                        <ul class="mb-0">
+                            @foreach (var error in errors)
+                            {
+                                <li>@error</li>
+                            }
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <div class="alert alert-info">
+                    <h5><i class="bi bi-info-circle"></i> Excel Format Instructions</h5>
+                    <p class="mb-2">Your Excel file must have the following columns in order:</p>
+                    <ol class="mb-0">
+                        <li><strong>ProductDescription</strong> (Text)</li>
+                        <li><strong>UnitId</strong> (Number)</li>
+                        <li><strong>ServiceCategoryId</strong> (Number)</li>
+                        <li><strong>Rate</strong> (Decimal)</li>
+                        <li><strong>HSCode</strong> (Number)</li>
+                        <li><strong>TaxRate</strong> (Decimal)</li>
+                    </ol>
+                    <p class="mt-2 mb-0"><small class="text-muted">First row should be headers. Data starts from row 2.</small></p>
+                </div>
+
+                <form asp-action="PreviewImport" method="post" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold fs-5">
+                            <i class="bi bi-cloud-upload"></i> Select Excel File
+                        </label>
+                        <input type="file" name="excelFile" class="form-control form-control-lg"
+                               accept=".xlsx,.xls" required />
+                        <small class="text-muted">Supported formats: .xlsx, .xls</small>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-eye"></i> Preview Products
+                        </button>
+                        <a asp-action="Create" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Add Product
+                        </a>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <h6 class="text-muted">Need Help?</h6>
+                    <p class="small">
+                        Download sample Excel template:
+                        <a href="/templates/product-import-sample.xlsx" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-download"></i> Download Sample
+                        </a>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

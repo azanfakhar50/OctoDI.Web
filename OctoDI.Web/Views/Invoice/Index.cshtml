@@ -1,0 +1,669 @@
+﻿@model IEnumerable<OctoDI.Web.Models.DatabaseModels.Invoice>
+@{
+    ViewData["Title"] = "Manage Invoices";
+    var pageNumber = ViewBag.PageNumber ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
+    var pageSize = ViewBag.PageSize ?? 10;
+    var totalRecords = ViewBag.TotalRecords ?? 0;
+}
+
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark mb-0">
+            <i class="bi bi-receipt"></i> Manage Invoices
+        </h2>
+
+        @if (!User.IsInRole("SuperAdmin"))
+        {
+            <a asp-action="Create" class="btn gradient-hover-btn mb-3">
+                <i class="bi bi-plus-circle"></i> Create Invoice
+            </a>
+        }
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <form method="get" asp-controller="Invoice" asp-action="Index" class="row g-3" id="filterForm">
+                <input type="hidden" name="subscriptionId" value="@ViewBag.SubscriptionId" />
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="Draft" selected="@(ViewBag.CurrentStatus == "Draft")">Draft</option>
+                        <option value="Pending" selected="@(ViewBag.CurrentStatus == "Pending")">Pending</option>
+                        <option value="Paid" selected="@(ViewBag.CurrentStatus == "Paid")">Paid</option>
+                        <option value="Posted" selected="@(ViewBag.CurrentStatus == "Posted")">Posted</option>
+                        <option value="FBR_Failed" selected="@(ViewBag.CurrentStatus == "FBR_Failed")">FBR Failed</option>
+                        <option value="Cancelled" selected="@(ViewBag.CurrentStatus == "Cancelled")">Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Search</label>
+                    <input type="text" name="search" class="form-control"
+                           placeholder="Invoice Ref No, FBR No, or Buyer Name"
+                           value="@ViewBag.SearchTerm" />
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn gradient-hover-btn me-2">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+
+                    <a asp-controller="Invoice" asp-action="Index" asp-route-subscriptionId="@ViewBag.SubscriptionId" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Count and Bulk Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <small class="text-muted">
+            Showing @((pageNumber - 1) * pageSize + 1) to @Math.Min(pageNumber * pageSize, totalRecords) of @totalRecords invoices
+        </small>
+
+        <!-- Bulk Export Dropdown -->
+        <div class="dropdown">
+            <button class="btn gradient-hover-btn dropdown-toggle" type="button" id="bulkExportDropdown" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                <i class="bi bi-download"></i> Export 
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="bulkExportDropdown">
+                <li><a class="dropdown-item bulk-export-option" href="#" data-type="pdf"><i class="bi bi-file-pdf"></i> Export PDF</a></li>
+                <li><a class="dropdown-item bulk-export-option" href="#" data-type="excel"><i class="bi bi-file-excel"></i> Export Excel</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Invoices Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center">
+                                    <input type="checkbox" id="select-all" class="form-check-input compact-checkbox">
+                                </th>
+                                <th>Invoice Ref No</th>
+                                <th>FBR Invoice No</th>
+                                <th>Address</th>
+                                <th>Buyer</th>
+                                <th>Invoice Date</th>
+                                <th>Type</th>
+                                <th>Items</th>
+                                <th>Total Amount</th>
+                                <th>Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var invoice in Model)
+                            {
+                                var totalAmount = invoice.Items?.Sum(i => i.TotalAmount ?? 0) ?? 0;
+                                var needsResend = string.IsNullOrEmpty(invoice.FBRInvoiceNo) &&
+                                (invoice.Status == "Paid" || invoice.Status == "FBR_Failed");
+
+                                <tr id="invoice-row-@invoice.InvoiceId">
+                                    <td class="text-center">
+                                        <input class="form-check-input bulk-select compact-checkbox"
+                                               type="checkbox"
+                                               value="@invoice.InvoiceId"
+                                               id="check-@invoice.InvoiceId">
+                                    </td>
+
+                                    <td>
+                                        <small class="text-dark fw-bold">@invoice.InvoiceRefNo</small>
+                                    </td>
+                                    <td id="fbr-no-@invoice.InvoiceId">
+                                        @if (!string.IsNullOrEmpty(invoice.FBRInvoiceNo))
+                                        {
+                                            <span class="badge bg-info">@invoice.FBRInvoiceNo</span>
+                                        }
+                                        else if (needsResend)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-exclamation-triangle"></i> Pending FBR
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            @invoice.Subscription?.Address
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <small>@invoice.Buyer?.BuyerBusinessName</small>
+                                            @if (!string.IsNullOrEmpty(invoice.Buyer?.BuyerNTN))
+                                            {
+                                                <br />
+                                                <small class="text-muted">NTN: @invoice.Buyer.BuyerNTN</small>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small>@invoice.InvoiceDate.ToString("MMM dd, yyyy")</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@invoice.InvoiceType</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">
+                                            @(invoice.Items?.Count ?? 0) items
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong class="text-success">Rs. @totalAmount.ToString("N2")</strong>
+                                    </td>
+                                    <td id="status-@invoice.InvoiceId">
+                                        @switch (invoice.Status)
+                                        {
+                                            case "Draft":
+                                                <span class="badge bg-secondary">Draft</span>
+                                                break;
+                                            case "Pending":
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                break;
+                                            case "Paid":
+                                                <span class="badge bg-success">Paid</span>
+                                                break;
+                                            case "Posted":
+                                                <span class="badge bg-info">Posted</span>
+                                                break;
+                                            case "FBR_Failed":
+                                                <span class="badge bg-danger">FBR Failed</span>
+                                                break;
+                                            case "Cancelled":
+                                                <span class="badge bg-danger">Cancelled</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-secondary">@invoice.Status</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-toolbar justify-content-center gap-1" role="toolbar">
+                                            <!-- View Details -->
+                                            <a asp-action="Details"
+                                               asp-route-id="@invoice.InvoiceId"
+                                               class="btn btn-sm btn-outline-info btn-action compact-btn"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="top"
+                                               title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                            <!-- Download PDF -->
+                                            <a asp-action="DownloadPdf"
+                                               asp-route-id="@invoice.InvoiceId"
+                                               class="btn btn-sm btn-outline-success btn-action compact-btn"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="top"
+                                               title="Download PDF">
+                                                <i class="bi bi-file-pdf"></i>
+                                            </a>
+
+                                            <!-- Download Excel -->
+                                            <a asp-action="DownloadExcel"
+                                               asp-route-id="@invoice.InvoiceId"
+                                               class="btn btn-sm btn-outline-secondary btn-action compact-btn"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="top"
+                                               title="Download Excel">
+                                                <i class="bi bi-file-excel"></i>
+                                            </a>
+
+                                            <!-- Resend to FBR (conditional) -->
+                                            @if (needsResend)
+                                            {
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-warning resend-fbr-btn btn-action compact-btn"
+                                                        data-invoice-id="@invoice.InvoiceId"
+                                                        data-invoice-ref="@invoice.InvoiceRefNo"
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-placement="top"
+                                                        title="Resend to FBR">
+                                                    <i class="bi bi-arrow-repeat"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (totalPages > 1)
+                {
+                    <nav aria-label="Invoice pagination">
+                        <ul class="pagination justify-content-center mt-4">
+                            <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   href="?subscriptionId=@ViewBag.SubscriptionId&status=@ViewBag.CurrentStatus&search=@ViewBag.SearchTerm&page=@(pageNumber - 1)&pageSize=@pageSize">
+                                    <i class="bi bi-chevron-left"></i> Previous
+                                </a>
+                            </li>
+
+                            @{
+                                int maxPagesToShow = 5;
+                                int startPage = Math.Max(1, pageNumber - (maxPagesToShow / 2));
+                                int endPage = Math.Min(totalPages, startPage + maxPagesToShow - 1);
+
+                                if ((endPage - startPage) < (maxPagesToShow - 1))
+                                {
+                                    startPage = Math.Max(1, endPage - maxPagesToShow + 1);
+                                }
+                            }
+
+                            @for (int i = startPage; i <= endPage; i++)
+                            {
+                                <li class="page-item @(i == pageNumber ? "active" : "")">
+                                    <a class="page-link"
+                                       href="?subscriptionId=@ViewBag.SubscriptionId&status=@ViewBag.CurrentStatus&search=@ViewBag.SearchTerm&page=@i&pageSize=@pageSize">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
+                                <a class="page-link"
+                                   href="?subscriptionId=@ViewBag.SubscriptionId&status=@ViewBag.CurrentStatus&search=@ViewBag.SearchTerm&page=@(pageNumber + 1)&pageSize=@pageSize">
+                                    Next <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">No Invoices Found</h4>
+                    <p class="text-muted">
+                        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm) || !string.IsNullOrEmpty(ViewBag.CurrentStatus))
+                        {
+                            <span>Try adjusting your filters or</span>
+                        }
+                        else
+                        {
+                            <span>Start by creating your first invoice.</span>
+                        }
+                    </p>
+                    <a asp-action="Create" asp-route-subscriptionId="@ViewBag.SubscriptionId" class="btn btn-primary mt-2">
+                        <i class="bi bi-plus-circle"></i> Create Invoice
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Form -->
+<form id="deleteForm" method="post" asp-action="Delete" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="deleteInvoiceId" />
+    <input type="hidden" name="subscriptionId" value="@ViewBag.SubscriptionId" />
+</form>
+
+<style>
+    /* ==================== COMPACT BUTTON STYLING ==================== */
+    .compact-btn {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+
+        .compact-btn i {
+            font-size: 12px;
+        }
+
+    /* Button Colors */
+    .btn-outline-info {
+        border-color: #17a2b8;
+        color: #17a2b8;
+    }
+
+    .btn-outline-danger {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+
+    .btn-outline-success {
+        border-color: #28a745;
+        color: #28a745;
+    }
+
+    .btn-outline-warning {
+        border-color: #ffc107;
+        color: #d39e00;
+    }
+
+    /* Hover Effects */
+    .compact-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .btn-outline-info:hover {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-outline-warning:hover {
+        background-color: #ffc107;
+        color: white;
+    }
+
+    /* ==================== COMPACT CHECKBOX ==================== */
+    .compact-checkbox {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        margin-top: 0;
+    }
+
+    /* ==================== TOOLBAR SPACING ==================== */
+    .btn-toolbar .gap-1 {
+        gap: 0.15rem !important;
+    }
+
+    /* ==================== GRADIENT BUTTONS ==================== */
+    .gradient-hover-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .gradient-hover-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+    /* ==================== PAGINATION ==================== */
+    .pagination .page-link {
+        border-radius: 8px;
+        margin: 0 4px;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+
+        .pagination .page-link:hover {
+            background-color: #667eea;
+            border-color: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+    }
+
+    /* ==================== DROPDOWN STYLING ==================== */
+    .dropdown-menu {
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .dropdown-item {
+        padding: 8px 16px;
+        transition: all 0.2s ease;
+    }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+    /* ==================== RESPONSIVE ==================== */
+    @@media (max-width: 768px) {
+        .compact-btn {
+            width: 26px;
+            height: 26px;
+        }
+
+            .compact-btn i {
+                font-size: 11px;
+            }
+
+        .compact-checkbox {
+            width: 14px;
+            height: 14px;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // ==================== DELETE CONFIRMATION ====================
+        function confirmDelete(invoiceId, refNo) {
+            Swal.fire({
+                title: `Delete Invoice "${refNo}"?`,
+                text: "This will also delete all associated items. This action cannot be undone!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, delete it",
+                cancelButtonText: "Cancel",
+                customClass: {
+                    popup: 'rounded-4 shadow-lg',
+                    title: 'fw-bold',
+                    confirmButton: 'btn btn-danger px-4',
+                    cancelButton: 'btn btn-secondary px-4'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('deleteInvoiceId').value = invoiceId;
+                    document.getElementById('deleteForm').submit();
+                }
+            });
+        }
+
+        // ==================== RESEND TO FBR ====================
+        $(document).on('click', '.resend-fbr-btn', function() {
+            const invoiceId = $(this).data('invoice-id');
+            const invoiceRef = $(this).data('invoice-ref');
+            const $button = $(this);
+
+            Swal.fire({
+                title: 'Resend to FBR?',
+                text: `Do you want to resend invoice "${invoiceRef}" to FBR?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, resend it',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return $.ajax({
+                        url: '@Url.Action("ResendToFBR", "Invoice")',
+                        type: 'POST',
+                        data: {
+                            id: invoiceId,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        dataType: 'json'
+                    }).then(response => {
+                        if (!response.success) {
+                            throw new Error(response.message);
+                        }
+                        return response;
+                    }).catch(error => {
+                        Swal.showValidationMessage(`Request failed: ${error.message || error}`);
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    const data = result.value;
+
+                    // ✅ Update FBR Invoice Number in table
+                    $(`#fbr-no-${invoiceId}`).html(
+                        `<span class="badge bg-info">${data.fbrInvoiceNo}</span>`
+                    );
+
+                    // ✅ Update Status badge
+                    let statusBadge = '';
+                    if (data.status === 'Posted') {
+                        statusBadge = '<span class="badge bg-info">Posted</span>';
+                    } else if (data.status === 'Paid') {
+                        statusBadge = '<span class="badge bg-success">Paid</span>';
+                    }
+                    $(`#status-${invoiceId}`).html(statusBadge);
+
+                    // ✅ Remove resend button
+                    $button.remove();
+
+                    // ✅ Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data.message,
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        });
+
+        // ==================== BULK EXPORT FUNCTIONALITY ====================
+        $(document).ready(function() {
+            // Initialize Bootstrap tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Select All functionality
+            $('#select-all').on('change', function() {
+                $('.bulk-select').prop('checked', this.checked);
+                updateBulkExportButton();
+            });
+
+            // Update bulk export button on checkbox change
+            $('.bulk-select').on('change', function() {
+                $('#select-all').prop('checked', $('.bulk-select:checked').length === $('.bulk-select').length);
+                updateBulkExportButton();
+            });
+
+            // Update bulk export button state
+            function updateBulkExportButton() {
+                const count = $('.bulk-select:checked').length;
+                const btn = $('#bulkExportDropdown');
+                if(count > 0){
+                    btn.prop('disabled', false).html(`<i class="bi bi-download"></i> Export  (${count})`);
+                } else {
+                    btn.prop('disabled', true).html('<i class="bi bi-download"></i> Export ');
+                }
+            }
+
+            // Bulk export option click handlers
+            $('.bulk-export-option').on('click', function(e) {
+                e.preventDefault();
+
+                const exportType = $(this).data('type');
+                const selectedIds = $('.bulk-select:checked').map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (selectedIds.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Selection',
+                        text: 'Please select at least one invoice to export.',
+                        confirmButtonColor: '#667eea'
+                    });
+                    return;
+                }
+
+                // Show loading
+                Swal.fire({
+                    title: 'Preparing Export...',
+                    text: 'Please wait while we prepare your files',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Determine the URL based on export type
+                let url = '';
+                if (exportType === 'pdf') {
+                    url = '@Url.Action("DownloadBulk", "Invoice")?ids=' + selectedIds.join(',');
+                } else if (exportType === 'excel') {
+                    url = '@Url.Action("DownloadBulkExcel", "Invoice")?ids=' + selectedIds.join(',');
+                }
+
+                // Trigger download
+                window.location.href = url;
+
+                // Close loading after a delay
+                setTimeout(() => {
+                    Swal.close();
+                }, 2000);
+            });
+
+            // Initial state
+            updateBulkExportButton();
+        });
+
+        // ==================== TEMPDATA ALERTS ====================
+        @if (TempData["Success"] != null)
+        {
+                <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: '@TempData["Success"]',
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                </text>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+                <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: '@TempData["Error"]'
+                    });
+                </text>
+        }
+    </script>
+}

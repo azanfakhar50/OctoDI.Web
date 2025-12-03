@@ -1,0 +1,38 @@
+﻿@model OctoDI.Web.Models.DatabaseModels.Subscription
+
+@{
+    ViewData["Title"] = "Subscription URL & Token";
+}
+
+<h2>Subscription URL & Token</h2>
+
+<div class="mb-3">
+    <label>FBR Base URL:</label>
+    <div class="input-group">
+        <input type="text" class="form-control" value="@Model.SubscriptionSetting.FbrBaseUrl" readonly id="urlField">
+        <button class="btn btn-outline-primary" onclick="copyToClipboard('urlField')">Copy</button>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label>FBR Token:</label>
+    <div class="input-group">
+        <input type="text" class="form-control" value="@Model.SubscriptionSetting.FbrToken" readonly id="tokenField">
+        <button class="btn btn-outline-primary" onclick="copyToClipboard('tokenField')">Copy</button>
+    </div>
+</div>
+<div class="d-flex justify-content-end gap-2 mt-4">
+    <a asp-action="Dashboard" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+<script>
+    function copyToClipboard(id) {
+        var copyText = document.getElementById(id);
+        navigator.clipboard.writeText(copyText.value).then(function() {
+            alert(id + " copied to clipboard!");
+        }, function(err) {
+            alert('Failed to copy: ', err);
+        });
+    }
+</script>
